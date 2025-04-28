@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "microservice-demo.fullname" . }}-inventory-service
+  labels:
+    {{- include "microservice-demo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: inventory-service
+spec:
+  type: {{ .Values.inventoryService.service.type }}
+  ports:
+    - port: {{ .Values.inventoryService.service.port }}
+      targetPort: grpc
+      protocol: TCP
+      name: grpc
+  selector:
+    {{- include "microservice-demo.inventoryService.selectorLabels" . | nindent 4 }}

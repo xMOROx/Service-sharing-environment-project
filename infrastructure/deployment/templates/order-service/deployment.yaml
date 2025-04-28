@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-order-service
+  labels:
+    {{- include "microservice-demo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: order-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "microservice-demo.orderService.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "microservice-demo.orderService.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "microservice-demo.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: order-service
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.orderService.image.pullPolicy }}
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}" 
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL 
+              value: "grpc"
+            - name: OTEL_SERVICE_NAME
+              value: "order-service"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "deployment.environment=development" 
+            - name: INVENTORY_SERVICE_ENDPOINT
+              value: "dns:///{{ .Release.name }}-inventory-service:{{ .Values.inventoryService.service.port }}"
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.orderService.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.orderService.resources | nindent 12 }}
