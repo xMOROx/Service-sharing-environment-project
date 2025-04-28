@@ -1,0 +1,38 @@
+replicaCount: 1
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "serviceaccount"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+orderService:
+  image:
+    repository: order-service
+    pullPolicy: IfNotPresent
+    tag: "0.1.0"
+  service:
+    type: ClusterIP
+    port: 50051
+  resources: {}
+
+inventoryService:
+  image:
+    repository: inventory-service
+    pullPolicy: IfNotPresent
+    tag: "0.1.0"
+  service:
+    type: ClusterIP
+    port: 50052
+  resources: {}
+
+otel:
+  collector:
+    endpoint: "otel-collector.observability.svc.cluster.local:4317"
