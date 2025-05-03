@@ -6,7 +6,9 @@
 
 
 ## 1. Introduction
-Po co i dlaczego
+The goal of this project is to gain practical experience with OpenTelemetry by building a simple client-server application in Go. A lightweight implementation of both the server and client will be created, followed by the integration of tracing, metrics, and logging capabilities using the OpenTelemetry SDK. The collected data will be sent to an OpenTelemetry Collector and then visualized in Grafana for monitoring and analysis. The aim is to achieve a minimal yet functional observability setup for the application.
+
+
 ## 2. Theoretical background/technology stack
 | Deployment | Observability   | App                              | Testing            |
 | ---------- | --------------- | -------------------------------- | ------------------ |
