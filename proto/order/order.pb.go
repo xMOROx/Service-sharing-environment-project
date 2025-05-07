@@ -139,7 +139,7 @@ const file_order_proto_rawDesc = "" +
 	"\amessage\x18\x02 \x01(\tR\amessage2G\n" +
 	"\fOrderService\x127\n" +
 	"\n" +
-	"PlaceOrder\x12\x13.order.OrderRequest\x1a\x14.order.OrderResponseB\x0fZ\r./proto;orderb\x06proto3"
+	"PlaceOrder\x12\x13.order.OrderRequest\x1a\x14.order.OrderResponseB\x15Z\x13./proto/order;orderb\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once

@@ -119,7 +119,7 @@ const file_inventory_proto_rawDesc = "" +
 	"\rHelloResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage2Q\n" +
 	"\x10InventoryService\x12=\n" +
-	"\bSayHello\x12\x17.inventory.HelloRequest\x1a\x18.inventory.HelloResponseB\x13Z\x11./proto;inventoryb\x06proto3"
+	"\bSayHello\x12\x17.inventory.HelloRequest\x1a\x18.inventory.HelloResponseB\x1dZ\x1b./proto/inventory;inventoryb\x06proto3"
 
 var (
 	file_inventory_proto_rawDescOnce sync.Once

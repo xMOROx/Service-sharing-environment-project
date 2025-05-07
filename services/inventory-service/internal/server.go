@@ -1,7 +1,7 @@
 package internal
 
 import (
-	pb "Service-sharing-environment-project/services/inventory-service/proto"
+	pb "Service-sharing-environment-project/proto/inventory"
 	"context"
 	"fmt"
 )
