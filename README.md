@@ -37,7 +37,7 @@ A simple system for managing orders and inventory levels.
         *   Receive and process a series of requests to provisionally add, update, or remove items for a pending order being built by the client.
         *   Send back real-time availability feedback, status of any soft reservations for items in the client's session, and proactive alerts (e.g., if stock for an item in the client's session becomes critically low due to external factors).
 
-2.  **Order Service** - Handles order processing:
+2.  **Order Service** – Handles order processing:
     *   `[Unary]` Checks the availability of individual items with the `Inventory Service` via direct, one-off requests.
     *   `[Bidirectional-Streaming]` Initiates and manages an interactive, continuous communication session with the `Inventory Service` to dynamically build an order, check availability for multiple items sequentially, receive live feedback, and potentially request soft reservations.
     *   Internally determines whether to confirm or reject an order based on inventory availability feedback and other business logic.
