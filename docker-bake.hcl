@@ -3,13 +3,13 @@ group "default" {
 }
 
 target "order-service" {
-  context    = "./docker/order-service"
-  dockerfile = "Dockerfile"
+  context = "."
+  dockerfile = "./infrastructure/docker/order-service/Dockerfile"
   tags       = ["order-service:0.1.0"]
 }
 
 target "inventory-service" {
-  context    = "./docker/inventory-service"
-  dockerfile = "Dockerfile"
+  context = "."
+  dockerfile = "./infrastructure/docker/inventory-service/Dockerfile"
   tags       = ["inventory-service:0.1.0"]
 }

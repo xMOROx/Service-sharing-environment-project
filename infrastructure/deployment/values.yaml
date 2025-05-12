@@ -16,21 +16,21 @@ securityContext: {}
 orderService:
   image:
     repository: order-service
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: "0.1.0"
   service:
     type: ClusterIP
-    port: 50051
+    port: 50052
   resources: {}
 
 inventoryService:
   image:
     repository: inventory-service
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     tag: "0.1.0"
   service:
     type: ClusterIP
-    port: 50052
+    port: 50051
   resources: {}
 
 otel:
