@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-inventory-service
+  labels:
+    {{- include "microservice-demo.labels" . | nindent 4 }}
+    app.kubernetes.io/component: inventory-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "microservice-demo.inventoryService.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "microservice-demo.inventoryService.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "microservice-demo.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: inventory-service
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.inventoryService.image.repository }}:{{ .Values.inventoryService.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.inventoryService.image.pullPolicy }}
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}"
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: "grpc"
+            - name: OTEL_SERVICE_NAME
+              value: "inventory-service"
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: "deployment.environment=development"
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.inventoryService.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.inventoryService.resources | nindent 12 }}

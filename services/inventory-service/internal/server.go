@@ -4,6 +4,7 @@ import (
 	pb "Service-sharing-environment-project/proto/inventory"
 	"context"
 	"fmt"
+	"log"
 )
 
 type InventoryServer struct {
@@ -11,5 +12,6 @@ type InventoryServer struct {
 }
 
 func (s *InventoryServer) SayHello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {
+	log.Printf("Received request: %v", req)
 	return &pb.HelloResponse{Message: fmt.Sprintf("Hello, %s from Inventory Service!", req.Name)}, nil
 }
