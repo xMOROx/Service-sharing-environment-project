@@ -42,7 +42,7 @@ spec:
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.environment=development" 
             - name: INVENTORY_SERVICE_ENDPOINT
-              value: "dns:///{{ .Release.name }}-inventory-service:{{ .Values.inventoryService.service.port }}"
+              value: "dns:///{{ .Release.Name }}-inventory-service:{{ .Values.inventoryService.service.port }}"
           ports:
             - name: grpc
               containerPort: {{ .Values.orderService.service.port }}
