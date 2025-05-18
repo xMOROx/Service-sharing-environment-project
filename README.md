@@ -53,7 +53,7 @@ A simple system for managing orders and inventory levels.
 
 ## 4. Solution architecture
 
-![architecture](./images/architecture.svg)
+![Solution architecture diagram showing the interaction between services, including the Inventory Service, Order Service, OpenTelemetry Collector, and Grafana.](./images/architecture.svg)
 
 ## 5. Environment configuration description
 
