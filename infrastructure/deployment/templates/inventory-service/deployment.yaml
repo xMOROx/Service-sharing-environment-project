@@ -15,6 +15,9 @@ spec:
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
+        prometheus.io/scrape: "true"
+        prometheus.io/path: {{ .Values.prometheus.metricsPath | quote }}
+        prometheus.io/port: {{ .Values.inventoryService.service.metricPort | quote }}
       {{- end }}
       labels:
         {{- include "microservice-demo.inventoryService.selectorLabels" . | nindent 8 }}
@@ -44,6 +47,9 @@ spec:
           ports:
             - name: grpc
               containerPort: {{ .Values.inventoryService.service.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.inventoryService.service.metricPort }} 
               protocol: TCP
           resources:
             {{- toYaml .Values.inventoryService.resources | nindent 12 }}

@@ -33,6 +33,11 @@ log_step "Building Docker images..."
 docker buildx bake
 log_success "Docker images built."
 
+
+log_step "Helm dependencies updating..."
+helm dependency update ./infrastructure/deployment/
+log_success "Helm dependencies updated."
+
 log_step "Deploying application..."
 helm install demo ./infrastructure/deployment/ -n default
 log_success "Application deployed."
