@@ -21,6 +21,7 @@ orderService:
   service:
     type: ClusterIP
     port: 50052
+    metricPort: 8050
   resources: {}
 
 inventoryService:
@@ -31,8 +32,13 @@ inventoryService:
   service:
     type: ClusterIP
     port: 50051
+    metricPort: 8050
   resources: {}
 
 otel:
   collector:
     endpoint: "otel-collector.observability.svc.cluster.local:4317"
+
+prometheus:
+  enabled: true
+  metricsPath: "/metrics"
