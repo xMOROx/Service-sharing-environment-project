@@ -19,14 +19,30 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	InventoryService_SayHello_FullMethodName = "/inventory.InventoryService/SayHello"
+	InventoryService_GetProductInfo_FullMethodName          = "/inventory.InventoryService/GetProductInfo"
+	InventoryService_AddProduct_FullMethodName              = "/inventory.InventoryService/AddProduct"
+	InventoryService_UpdateProduct_FullMethodName           = "/inventory.InventoryService/UpdateProduct"
+	InventoryService_RemoveProduct_FullMethodName           = "/inventory.InventoryService/RemoveProduct"
+	InventoryService_AdjustStock_FullMethodName             = "/inventory.InventoryService/AdjustStock"
+	InventoryService_BulkStockUpdate_FullMethodName         = "/inventory.InventoryService/BulkStockUpdate"
+	InventoryService_ListProducts_FullMethodName            = "/inventory.InventoryService/ListProducts"
+	InventoryService_SubscribeLowStockAlerts_FullMethodName = "/inventory.InventoryService/SubscribeLowStockAlerts"
+	InventoryService_InteractiveOrderStock_FullMethodName   = "/inventory.InventoryService/InteractiveOrderStock"
 )
 
 // InventoryServiceClient is the client API for InventoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InventoryServiceClient interface {
-	SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error)
+	GetProductInfo(ctx context.Context, in *ProductId, opts ...grpc.CallOption) (*ProductInfo, error)
+	AddProduct(ctx context.Context, in *ProductInfo, opts ...grpc.CallOption) (*OperationStatus, error)
+	UpdateProduct(ctx context.Context, in *ProductInfo, opts ...grpc.CallOption) (*OperationStatus, error)
+	RemoveProduct(ctx context.Context, in *ProductId, opts ...grpc.CallOption) (*OperationStatus, error)
+	AdjustStock(ctx context.Context, in *StockAdjustment, opts ...grpc.CallOption) (*OperationStatus, error)
+	BulkStockUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StockAdjustment, OperationStatus], error)
+	ListProducts(ctx context.Context, in *ProductFilter, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProductInfo], error)
+	SubscribeLowStockAlerts(ctx context.Context, in *LowStockSubscription, opts ...grpc.CallOption) (grpc.ServerStreamingClient[LowStockAlert], error)
+	InteractiveOrderStock(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[OrderItemRequest, OrderItemResponse], error)
 }
 
 type inventoryServiceClient struct {
@@ -37,21 +53,133 @@ func NewInventoryServiceClient(cc grpc.ClientConnInterface) InventoryServiceClie
 	return &inventoryServiceClient{cc}
 }
 
-func (c *inventoryServiceClient) SayHello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
+func (c *inventoryServiceClient) GetProductInfo(ctx context.Context, in *ProductId, opts ...grpc.CallOption) (*ProductInfo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(HelloResponse)
-	err := c.cc.Invoke(ctx, InventoryService_SayHello_FullMethodName, in, out, cOpts...)
+	out := new(ProductInfo)
+	err := c.cc.Invoke(ctx, InventoryService_GetProductInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
+func (c *inventoryServiceClient) AddProduct(ctx context.Context, in *ProductInfo, opts ...grpc.CallOption) (*OperationStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperationStatus)
+	err := c.cc.Invoke(ctx, InventoryService_AddProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryServiceClient) UpdateProduct(ctx context.Context, in *ProductInfo, opts ...grpc.CallOption) (*OperationStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperationStatus)
+	err := c.cc.Invoke(ctx, InventoryService_UpdateProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryServiceClient) RemoveProduct(ctx context.Context, in *ProductId, opts ...grpc.CallOption) (*OperationStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperationStatus)
+	err := c.cc.Invoke(ctx, InventoryService_RemoveProduct_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryServiceClient) AdjustStock(ctx context.Context, in *StockAdjustment, opts ...grpc.CallOption) (*OperationStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperationStatus)
+	err := c.cc.Invoke(ctx, InventoryService_AdjustStock_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryServiceClient) BulkStockUpdate(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StockAdjustment, OperationStatus], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &InventoryService_ServiceDesc.Streams[0], InventoryService_BulkStockUpdate_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StockAdjustment, OperationStatus]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_BulkStockUpdateClient = grpc.ClientStreamingClient[StockAdjustment, OperationStatus]
+
+func (c *inventoryServiceClient) ListProducts(ctx context.Context, in *ProductFilter, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProductInfo], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &InventoryService_ServiceDesc.Streams[1], InventoryService_ListProducts_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ProductFilter, ProductInfo]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_ListProductsClient = grpc.ServerStreamingClient[ProductInfo]
+
+func (c *inventoryServiceClient) SubscribeLowStockAlerts(ctx context.Context, in *LowStockSubscription, opts ...grpc.CallOption) (grpc.ServerStreamingClient[LowStockAlert], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &InventoryService_ServiceDesc.Streams[2], InventoryService_SubscribeLowStockAlerts_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[LowStockSubscription, LowStockAlert]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_SubscribeLowStockAlertsClient = grpc.ServerStreamingClient[LowStockAlert]
+
+func (c *inventoryServiceClient) InteractiveOrderStock(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[OrderItemRequest, OrderItemResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &InventoryService_ServiceDesc.Streams[3], InventoryService_InteractiveOrderStock_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OrderItemRequest, OrderItemResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_InteractiveOrderStockClient = grpc.BidiStreamingClient[OrderItemRequest, OrderItemResponse]
+
 // InventoryServiceServer is the server API for InventoryService service.
 // All implementations must embed UnimplementedInventoryServiceServer
 // for forward compatibility.
 type InventoryServiceServer interface {
-	SayHello(context.Context, *HelloRequest) (*HelloResponse, error)
+	GetProductInfo(context.Context, *ProductId) (*ProductInfo, error)
+	AddProduct(context.Context, *ProductInfo) (*OperationStatus, error)
+	UpdateProduct(context.Context, *ProductInfo) (*OperationStatus, error)
+	RemoveProduct(context.Context, *ProductId) (*OperationStatus, error)
+	AdjustStock(context.Context, *StockAdjustment) (*OperationStatus, error)
+	BulkStockUpdate(grpc.ClientStreamingServer[StockAdjustment, OperationStatus]) error
+	ListProducts(*ProductFilter, grpc.ServerStreamingServer[ProductInfo]) error
+	SubscribeLowStockAlerts(*LowStockSubscription, grpc.ServerStreamingServer[LowStockAlert]) error
+	InteractiveOrderStock(grpc.BidiStreamingServer[OrderItemRequest, OrderItemResponse]) error
 	mustEmbedUnimplementedInventoryServiceServer()
 }
 
@@ -62,8 +190,32 @@ type InventoryServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedInventoryServiceServer struct{}
 
-func (UnimplementedInventoryServiceServer) SayHello(context.Context, *HelloRequest) (*HelloResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
+func (UnimplementedInventoryServiceServer) GetProductInfo(context.Context, *ProductId) (*ProductInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProductInfo not implemented")
+}
+func (UnimplementedInventoryServiceServer) AddProduct(context.Context, *ProductInfo) (*OperationStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddProduct not implemented")
+}
+func (UnimplementedInventoryServiceServer) UpdateProduct(context.Context, *ProductInfo) (*OperationStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
+}
+func (UnimplementedInventoryServiceServer) RemoveProduct(context.Context, *ProductId) (*OperationStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveProduct not implemented")
+}
+func (UnimplementedInventoryServiceServer) AdjustStock(context.Context, *StockAdjustment) (*OperationStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdjustStock not implemented")
+}
+func (UnimplementedInventoryServiceServer) BulkStockUpdate(grpc.ClientStreamingServer[StockAdjustment, OperationStatus]) error {
+	return status.Errorf(codes.Unimplemented, "method BulkStockUpdate not implemented")
+}
+func (UnimplementedInventoryServiceServer) ListProducts(*ProductFilter, grpc.ServerStreamingServer[ProductInfo]) error {
+	return status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
+}
+func (UnimplementedInventoryServiceServer) SubscribeLowStockAlerts(*LowStockSubscription, grpc.ServerStreamingServer[LowStockAlert]) error {
+	return status.Errorf(codes.Unimplemented, "method SubscribeLowStockAlerts not implemented")
+}
+func (UnimplementedInventoryServiceServer) InteractiveOrderStock(grpc.BidiStreamingServer[OrderItemRequest, OrderItemResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method InteractiveOrderStock not implemented")
 }
 func (UnimplementedInventoryServiceServer) mustEmbedUnimplementedInventoryServiceServer() {}
 func (UnimplementedInventoryServiceServer) testEmbeddedByValue()                          {}
@@ -86,23 +238,131 @@ func RegisterInventoryServiceServer(s grpc.ServiceRegistrar, srv InventoryServic
 	s.RegisterService(&InventoryService_ServiceDesc, srv)
 }
 
-func _InventoryService_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HelloRequest)
+func _InventoryService_GetProductInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(InventoryServiceServer).SayHello(ctx, in)
+		return srv.(InventoryServiceServer).GetProductInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: InventoryService_SayHello_FullMethodName,
+		FullMethod: InventoryService_GetProductInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InventoryServiceServer).SayHello(ctx, req.(*HelloRequest))
+		return srv.(InventoryServiceServer).GetProductInfo(ctx, req.(*ProductId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
+
+func _InventoryService_AddProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).AddProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_AddProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).AddProduct(ctx, req.(*ProductInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InventoryService_UpdateProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).UpdateProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_UpdateProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).UpdateProduct(ctx, req.(*ProductInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InventoryService_RemoveProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProductId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).RemoveProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_RemoveProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).RemoveProduct(ctx, req.(*ProductId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InventoryService_AdjustStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StockAdjustment)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).AdjustStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_AdjustStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).AdjustStock(ctx, req.(*StockAdjustment))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InventoryService_BulkStockUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(InventoryServiceServer).BulkStockUpdate(&grpc.GenericServerStream[StockAdjustment, OperationStatus]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_BulkStockUpdateServer = grpc.ClientStreamingServer[StockAdjustment, OperationStatus]
+
+func _InventoryService_ListProducts_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ProductFilter)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InventoryServiceServer).ListProducts(m, &grpc.GenericServerStream[ProductFilter, ProductInfo]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_ListProductsServer = grpc.ServerStreamingServer[ProductInfo]
+
+func _InventoryService_SubscribeLowStockAlerts_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(LowStockSubscription)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InventoryServiceServer).SubscribeLowStockAlerts(m, &grpc.GenericServerStream[LowStockSubscription, LowStockAlert]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_SubscribeLowStockAlertsServer = grpc.ServerStreamingServer[LowStockAlert]
+
+func _InventoryService_InteractiveOrderStock_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(InventoryServiceServer).InteractiveOrderStock(&grpc.GenericServerStream[OrderItemRequest, OrderItemResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type InventoryService_InteractiveOrderStockServer = grpc.BidiStreamingServer[OrderItemRequest, OrderItemResponse]
 
 // InventoryService_ServiceDesc is the grpc.ServiceDesc for InventoryService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -112,10 +372,48 @@ var InventoryService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*InventoryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SayHello",
-			Handler:    _InventoryService_SayHello_Handler,
+			MethodName: "GetProductInfo",
+			Handler:    _InventoryService_GetProductInfo_Handler,
+		},
+		{
+			MethodName: "AddProduct",
+			Handler:    _InventoryService_AddProduct_Handler,
+		},
+		{
+			MethodName: "UpdateProduct",
+			Handler:    _InventoryService_UpdateProduct_Handler,
+		},
+		{
+			MethodName: "RemoveProduct",
+			Handler:    _InventoryService_RemoveProduct_Handler,
+		},
+		{
+			MethodName: "AdjustStock",
+			Handler:    _InventoryService_AdjustStock_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "BulkStockUpdate",
+			Handler:       _InventoryService_BulkStockUpdate_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "ListProducts",
+			Handler:       _InventoryService_ListProducts_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "SubscribeLowStockAlerts",
+			Handler:       _InventoryService_SubscribeLowStockAlerts_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "InteractiveOrderStock",
+			Handler:       _InventoryService_InteractiveOrderStock_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "inventory.proto",
 }

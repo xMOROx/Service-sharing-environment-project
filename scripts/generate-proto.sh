@@ -26,8 +26,8 @@ mkdir -p proto/order
 log_success "Proto directories ensured."
 
 log_step "Generating protobuf files..."
-protoc --go_out=. --go-grpc_out=. --proto_path=proto proto/inventory.proto
-protoc --go_out=. --go-grpc_out=. --proto_path=proto proto/order.proto
+protoc --go_out=.. --go-grpc_out=.. --proto_path=proto proto/inventory.proto
+protoc --go_out=.. --go-grpc_out=.. --proto_path=proto proto/order.proto
 log_success "Protobuf files generated."
 
 log_info "Protobuf generation complete."
