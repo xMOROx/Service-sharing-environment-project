@@ -5,13 +5,68 @@ package inventory;
 option go_package = "./proto/inventory;inventory";
 
 service InventoryService {
-  rpc SayHello (HelloRequest) returns (HelloResponse);
+  rpc GetProductInfo(ProductId) returns (ProductInfo);
+  rpc AddProduct(ProductInfo) returns (OperationStatus);
+  rpc UpdateProduct(ProductInfo) returns (OperationStatus);
+  rpc RemoveProduct(ProductId) returns (OperationStatus);
+  rpc AdjustStock(StockAdjustment) returns (OperationStatus);
+  rpc BulkStockUpdate(stream StockAdjustment) returns (OperationStatus);
+  rpc ListProducts(ProductFilter) returns (stream ProductInfo);
+  rpc SubscribeLowStockAlerts(LowStockSubscription) returns (stream LowStockAlert);
+  rpc InteractiveOrderStock(stream OrderItemRequest) returns (stream OrderItemResponse);
 }
 
-message HelloRequest {
-  string name = 1;
+message ProductId {
+  string product_id = 1;
 }
 
-message HelloResponse {
-  string message = 1;
+message ProductInfo {
+  string product_id = 1;
+  string name = 2;
+  string description = 3;
+  string category = 4;
+  bool discontinued = 5;
+  int32 available_quantity = 6;
+  bool is_available = 7;
+}
+
+message StockAdjustment {
+  string product_id = 1;
+  int32 quantity_change = 2;
+  string reason = 3;
+}
+
+message ProductFilter {
+  string category = 1;
+  bool include_discontinued = 2;
+}
+
+message LowStockSubscription {
+  repeated string product_ids = 1;
+  int32 threshold = 2;
+}
+
+message LowStockAlert {
+  string product_id = 1;
+  int32 current_quantity = 2;
+  string message = 3;
+}
+
+message OrderItemRequest {
+  string session_id = 1;
+  string product_id = 2;
+  int32 requested_quantity = 3;
+  string action = 4; // "add", "update", "remove"
+}
+
+message OrderItemResponse {
+  string product_id = 1;
+  bool available = 2;
+  int32 available_quantity = 3;
+  string message = 4;
+}
+
+message OperationStatus {
+  bool success = 1;
+  string message = 2;
 }

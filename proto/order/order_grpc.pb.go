@@ -7,6 +7,7 @@
 package order
 
 import (
+	inventory "./proto/inventory"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -19,14 +20,22 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderService_PlaceOrder_FullMethodName = "/order.OrderService/PlaceOrder"
+	OrderService_CheckItemAvailability_FullMethodName = "/order.OrderService/CheckItemAvailability"
+	OrderService_BuildOrder_FullMethodName            = "/order.OrderService/BuildOrder"
+	OrderService_FinalizeOrder_FullMethodName         = "/order.OrderService/FinalizeOrder"
+	OrderService_CancelOrder_FullMethodName           = "/order.OrderService/CancelOrder"
+	OrderService_ConfirmOrderStock_FullMethodName     = "/order.OrderService/ConfirmOrderStock"
 )
 
 // OrderServiceClient is the client API for OrderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
-	PlaceOrder(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error)
+	CheckItemAvailability(ctx context.Context, in *inventory.ProductId, opts ...grpc.CallOption) (*inventory.ProductInfo, error)
+	BuildOrder(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[inventory.OrderItemRequest, inventory.OrderItemResponse], error)
+	FinalizeOrder(ctx context.Context, in *FinalizeOrderRequest, opts ...grpc.CallOption) (*FinalizeOrderResponse, error)
+	CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error)
+	ConfirmOrderStock(ctx context.Context, in *FinalizeOrderRequest, opts ...grpc.CallOption) (*inventory.OperationStatus, error)
 }
 
 type orderServiceClient struct {
@@ -37,10 +46,53 @@ func NewOrderServiceClient(cc grpc.ClientConnInterface) OrderServiceClient {
 	return &orderServiceClient{cc}
 }
 
-func (c *orderServiceClient) PlaceOrder(ctx context.Context, in *OrderRequest, opts ...grpc.CallOption) (*OrderResponse, error) {
+func (c *orderServiceClient) CheckItemAvailability(ctx context.Context, in *inventory.ProductId, opts ...grpc.CallOption) (*inventory.ProductInfo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrderResponse)
-	err := c.cc.Invoke(ctx, OrderService_PlaceOrder_FullMethodName, in, out, cOpts...)
+	out := new(inventory.ProductInfo)
+	err := c.cc.Invoke(ctx, OrderService_CheckItemAvailability_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) BuildOrder(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[inventory.OrderItemRequest, inventory.OrderItemResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OrderService_ServiceDesc.Streams[0], OrderService_BuildOrder_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[inventory.OrderItemRequest, inventory.OrderItemResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OrderService_BuildOrderClient = grpc.BidiStreamingClient[inventory.OrderItemRequest, inventory.OrderItemResponse]
+
+func (c *orderServiceClient) FinalizeOrder(ctx context.Context, in *FinalizeOrderRequest, opts ...grpc.CallOption) (*FinalizeOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FinalizeOrderResponse)
+	err := c.cc.Invoke(ctx, OrderService_FinalizeOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) CancelOrder(ctx context.Context, in *CancelOrderRequest, opts ...grpc.CallOption) (*CancelOrderResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelOrderResponse)
+	err := c.cc.Invoke(ctx, OrderService_CancelOrder_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) ConfirmOrderStock(ctx context.Context, in *FinalizeOrderRequest, opts ...grpc.CallOption) (*inventory.OperationStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(inventory.OperationStatus)
+	err := c.cc.Invoke(ctx, OrderService_ConfirmOrderStock_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +103,11 @@ func (c *orderServiceClient) PlaceOrder(ctx context.Context, in *OrderRequest, o
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
 type OrderServiceServer interface {
-	PlaceOrder(context.Context, *OrderRequest) (*OrderResponse, error)
+	CheckItemAvailability(context.Context, *inventory.ProductId) (*inventory.ProductInfo, error)
+	BuildOrder(grpc.BidiStreamingServer[inventory.OrderItemRequest, inventory.OrderItemResponse]) error
+	FinalizeOrder(context.Context, *FinalizeOrderRequest) (*FinalizeOrderResponse, error)
+	CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error)
+	ConfirmOrderStock(context.Context, *FinalizeOrderRequest) (*inventory.OperationStatus, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -62,8 +118,20 @@ type OrderServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrderServiceServer struct{}
 
-func (UnimplementedOrderServiceServer) PlaceOrder(context.Context, *OrderRequest) (*OrderResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PlaceOrder not implemented")
+func (UnimplementedOrderServiceServer) CheckItemAvailability(context.Context, *inventory.ProductId) (*inventory.ProductInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckItemAvailability not implemented")
+}
+func (UnimplementedOrderServiceServer) BuildOrder(grpc.BidiStreamingServer[inventory.OrderItemRequest, inventory.OrderItemResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method BuildOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) FinalizeOrder(context.Context, *FinalizeOrderRequest) (*FinalizeOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FinalizeOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) CancelOrder(context.Context, *CancelOrderRequest) (*CancelOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
+}
+func (UnimplementedOrderServiceServer) ConfirmOrderStock(context.Context, *FinalizeOrderRequest) (*inventory.OperationStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmOrderStock not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
@@ -86,20 +154,81 @@ func RegisterOrderServiceServer(s grpc.ServiceRegistrar, srv OrderServiceServer)
 	s.RegisterService(&OrderService_ServiceDesc, srv)
 }
 
-func _OrderService_PlaceOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrderRequest)
+func _OrderService_CheckItemAvailability_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(inventory.ProductId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).PlaceOrder(ctx, in)
+		return srv.(OrderServiceServer).CheckItemAvailability(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderService_PlaceOrder_FullMethodName,
+		FullMethod: OrderService_CheckItemAvailability_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).PlaceOrder(ctx, req.(*OrderRequest))
+		return srv.(OrderServiceServer).CheckItemAvailability(ctx, req.(*inventory.ProductId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_BuildOrder_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(OrderServiceServer).BuildOrder(&grpc.GenericServerStream[inventory.OrderItemRequest, inventory.OrderItemResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OrderService_BuildOrderServer = grpc.BidiStreamingServer[inventory.OrderItemRequest, inventory.OrderItemResponse]
+
+func _OrderService_FinalizeOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FinalizeOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).FinalizeOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_FinalizeOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).FinalizeOrder(ctx, req.(*FinalizeOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).CancelOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_CancelOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).CancelOrder(ctx, req.(*CancelOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_ConfirmOrderStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FinalizeOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).ConfirmOrderStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_ConfirmOrderStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).ConfirmOrderStock(ctx, req.(*FinalizeOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,10 +241,29 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PlaceOrder",
-			Handler:    _OrderService_PlaceOrder_Handler,
+			MethodName: "CheckItemAvailability",
+			Handler:    _OrderService_CheckItemAvailability_Handler,
+		},
+		{
+			MethodName: "FinalizeOrder",
+			Handler:    _OrderService_FinalizeOrder_Handler,
+		},
+		{
+			MethodName: "CancelOrder",
+			Handler:    _OrderService_CancelOrder_Handler,
+		},
+		{
+			MethodName: "ConfirmOrderStock",
+			Handler:    _OrderService_ConfirmOrderStock_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "BuildOrder",
+			Handler:       _OrderService_BuildOrder_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "order.proto",
 }

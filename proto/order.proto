@@ -4,16 +4,43 @@ package order;
 
 option go_package = "./proto/order;order";
 
+import "inventory.proto";
+
 service OrderService {
-  rpc PlaceOrder (OrderRequest) returns (OrderResponse);
+  rpc CheckItemAvailability(inventory.ProductId) returns (inventory.ProductInfo);
+  rpc BuildOrder(stream inventory.OrderItemRequest) returns (stream inventory.OrderItemResponse);
+  rpc FinalizeOrder(FinalizeOrderRequest) returns (FinalizeOrderResponse);
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+  rpc ConfirmOrderStock(FinalizeOrderRequest) returns (inventory.OperationStatus);
 }
 
-message OrderRequest {
+message FinalizeOrderRequest {
+  string session_id = 1;
+  repeated OrderItem items = 2;
+}
+
+message FinalizeOrderResponse {
+  bool success = 1;
+  string message = 2;
+  repeated ItemResult item_results = 3;
+}
+
+message ItemResult {
+  string product_id = 1;
+  bool reserved = 2;
+  string message = 3;
+}
+
+message OrderItem {
   string product_id = 1;
   int32 quantity = 2;
 }
 
-message OrderResponse {
-  bool confirmed = 1;
+message CancelOrderRequest {
+  string session_id = 1;
+}
+
+message CancelOrderResponse {
+  bool released = 1;
   string message = 2;
 }
