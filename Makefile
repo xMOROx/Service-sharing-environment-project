@@ -1,20 +1,17 @@
-.PHONY: all proto clean order inventory deploy images uninstall clean-images
+.PHONY: all proto clean order inventory deploy images uninstall clean-images forward-ports clean-ports
 
 ORDER_DIR=./services/order-service
 INVENTORY_DIR=./services/inventory-service
 ORDER_EXEC=order-service
 INVENTORY_EXEC=inventory-service
 
-all: proto order inventory build-images deploy
+all: deploy
 
 build-images:
 	docker buildx bake
 
-proto: 
-	mkdir -p proto/inventory
-	mkdir -p proto/order
-	protoc --go_out=. --go-grpc_out=. --proto_path=proto proto/inventory.proto
-	protoc --go_out=. --go-grpc_out=. --proto_path=proto proto/order.proto
+proto:
+	./scripts/generate-proto.sh
 
 clean: clean-images
 	find . -name "*.pb.go" -delete
@@ -30,8 +27,14 @@ order:
 inventory:
 	cd ${INVENTORY_DIR} && go build .
 
-deploy: 
-	helm install demo ./infrastructure/deployment/ -n default
+deploy:
+	./scripts/deploy.sh
 
-uninstall:
-	helm uninstall demo -n default
+uninstall: clean-ports
+	./scripts/uninstall.sh
+
+forward-ports:
+	./scripts/forward-ports.sh
+
+clean-ports:
+	./scripts/clean-ports.sh
