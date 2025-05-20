@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package order;
 
-option go_package = "./proto/order;order";
+option go_package = "Service-sharing-environment-project/proto/order;order";
 
 import "inventory.proto";
 

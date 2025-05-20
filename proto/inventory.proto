@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package inventory;
 
-option go_package = "./proto/inventory;inventory";
+option go_package = "Service-sharing-environment-project/proto/inventory;inventory";
 
 service InventoryService {
   rpc GetProductInfo(ProductId) returns (ProductInfo);
