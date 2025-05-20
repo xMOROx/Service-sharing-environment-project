@@ -4,12 +4,15 @@ import (
 	invpb "Service-sharing-environment-project/proto/inventory"
 	orderpb "Service-sharing-environment-project/proto/order"
 	"Service-sharing-environment-project/services/order-service/internal"
+	"context"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"io"
 	"log"
 	"net"
 	"os"
+	"time"
 )
 
 const (
@@ -23,6 +26,53 @@ func getEnv(key, fallback string) string {
 	}
 	log.Printf("Warning: Environment variable %s not set, using fallback: %s", key, fallback)
 	return fallback
+}
+
+func Test(client invpb.InventoryServiceClient) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// 1. GetProductInfo
+	productID := &invpb.ProductId{ProductId: "P001"}
+	info, err := client.GetProductInfo(ctx, productID)
+	if err != nil {
+		log.Printf("GetProductInfo error: %v", err)
+	} else {
+		fmt.Printf("Product Info: %+v\n", info)
+	}
+
+	// 2. AdjustStock
+	adjustment := &invpb.StockAdjustment{
+		ProductId:      "P001",
+		QuantityChange: 5,
+		Reason:         "Manual test",
+	}
+	adjustResp, err := client.AdjustStock(ctx, adjustment)
+	if err != nil {
+		log.Printf("AdjustStock error: %v", err)
+	} else {
+		fmt.Printf("AdjustStock response: %+v\n", adjustResp)
+	}
+
+	// 3. ListProducts
+	filter := &invpb.ProductFilter{IncludeDiscontinued: true}
+	stream, err := client.ListProducts(ctx, filter)
+	if err != nil {
+		log.Printf("ListProducts error: %v", err)
+		return
+	}
+	fmt.Println("Products list:")
+	for {
+		product, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("Stream error: %v", err)
+			break
+		}
+		fmt.Printf("- %s (%s): %d in stock\n", product.Name, product.ProductId, product.AvailableQuantity)
+	}
 }
 
 func main() {
@@ -43,7 +93,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Order Service: failed to listen on port %s: %v", orderServiceListenPort, err)
 	}
-
+	go Test(inventoryClient)
 	grpcServer := grpc.NewServer()
 	orderSrv := internal.NewOrderServer(inventoryClient)
 	orderpb.RegisterOrderServiceServer(grpcServer, orderSrv)
