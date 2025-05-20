@@ -53,10 +53,16 @@ message LowStockAlert {
 }
 
 message OrderItemRequest {
+  enum ActionType {
+    ACTION_TYPE_UNSPECIFIED = 0;
+    ADD = 1;
+    UPDATE = 2;
+    REMOVE = 3;
+  }
   string session_id = 1;
   string product_id = 2;
   int32 requested_quantity = 3;
-  string action = 4; // "add", "update", "remove"
+  ActionType action = 4;
 }
 
 message OrderItemResponse {

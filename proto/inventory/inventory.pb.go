@@ -21,6 +21,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type OrderItemRequest_ActionType int32
+
+const (
+	OrderItemRequest_ACTION_TYPE_UNSPECIFIED OrderItemRequest_ActionType = 0
+	OrderItemRequest_ADD                     OrderItemRequest_ActionType = 1
+	OrderItemRequest_UPDATE                  OrderItemRequest_ActionType = 2
+	OrderItemRequest_REMOVE                  OrderItemRequest_ActionType = 3
+)
+
+// Enum value maps for OrderItemRequest_ActionType.
+var (
+	OrderItemRequest_ActionType_name = map[int32]string{
+		0: "ACTION_TYPE_UNSPECIFIED",
+		1: "ADD",
+		2: "UPDATE",
+		3: "REMOVE",
+	}
+	OrderItemRequest_ActionType_value = map[string]int32{
+		"ACTION_TYPE_UNSPECIFIED": 0,
+		"ADD":                     1,
+		"UPDATE":                  2,
+		"REMOVE":                  3,
+	}
+)
+
+func (x OrderItemRequest_ActionType) Enum() *OrderItemRequest_ActionType {
+	p := new(OrderItemRequest_ActionType)
+	*p = x
+	return p
+}
+
+func (x OrderItemRequest_ActionType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (OrderItemRequest_ActionType) Descriptor() protoreflect.EnumDescriptor {
+	return file_inventory_proto_enumTypes[0].Descriptor()
+}
+
+func (OrderItemRequest_ActionType) Type() protoreflect.EnumType {
+	return &file_inventory_proto_enumTypes[0]
+}
+
+func (x OrderItemRequest_ActionType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use OrderItemRequest_ActionType.Descriptor instead.
+func (OrderItemRequest_ActionType) EnumDescriptor() ([]byte, []int) {
+	return file_inventory_proto_rawDescGZIP(), []int{6, 0}
+}
+
 type ProductId struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProductId     string                 `protobuf:"bytes,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
@@ -382,11 +434,11 @@ func (x *LowStockAlert) GetMessage() string {
 }
 
 type OrderItemRequest struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	SessionId         string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	ProductId         string                 `protobuf:"bytes,2,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
-	RequestedQuantity int32                  `protobuf:"varint,3,opt,name=requested_quantity,json=requestedQuantity,proto3" json:"requested_quantity,omitempty"`
-	Action            string                 `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"` // "add", "update", "remove"
+	state             protoimpl.MessageState      `protogen:"open.v1"`
+	SessionId         string                      `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	ProductId         string                      `protobuf:"bytes,2,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	RequestedQuantity int32                       `protobuf:"varint,3,opt,name=requested_quantity,json=requestedQuantity,proto3" json:"requested_quantity,omitempty"`
+	Action            OrderItemRequest_ActionType `protobuf:"varint,4,opt,name=action,proto3,enum=inventory.OrderItemRequest_ActionType" json:"action,omitempty"` // "add", "update", "remove"
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -442,11 +494,11 @@ func (x *OrderItemRequest) GetRequestedQuantity() int32 {
 	return 0
 }
 
-func (x *OrderItemRequest) GetAction() string {
+func (x *OrderItemRequest) GetAction() OrderItemRequest_ActionType {
 	if x != nil {
 		return x.Action
 	}
-	return ""
+	return OrderItemRequest_ACTION_TYPE_UNSPECIFIED
 }
 
 type OrderItemResponse struct {
@@ -602,14 +654,22 @@ const file_inventory_proto_rawDesc = "" +
 	"\n" +
 	"product_id\x18\x01 \x01(\tR\tproductId\x12)\n" +
 	"\x10current_quantity\x18\x02 \x01(\x05R\x0fcurrentQuantity\x12\x18\n" +
-	"\amessage\x18\x03 \x01(\tR\amessage\"\x97\x01\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\"\x8b\x02\n" +
 	"\x10OrderItemRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x02 \x01(\tR\tproductId\x12-\n" +
-	"\x12requested_quantity\x18\x03 \x01(\x05R\x11requestedQuantity\x12\x16\n" +
-	"\x06action\x18\x04 \x01(\tR\x06action\"\x99\x01\n" +
+	"\x12requested_quantity\x18\x03 \x01(\x05R\x11requestedQuantity\x12>\n" +
+	"\x06action\x18\x04 \x01(\x0e2&.inventory.OrderItemRequest.ActionTypeR\x06action\"J\n" +
+	"\n" +
+	"ActionType\x12\x1b\n" +
+	"\x17ACTION_TYPE_UNSPECIFIED\x10\x00\x12\a\n" +
+	"\x03ADD\x10\x01\x12\n" +
+	"\n" +
+	"\x06UPDATE\x10\x02\x12\n" +
+	"\n" +
+	"\x06REMOVE\x10\x03\"\x99\x01\n" +
 	"\x11OrderItemResponse\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\tR\tproductId\x12\x1c\n" +
@@ -643,42 +703,45 @@ func file_inventory_proto_rawDescGZIP() []byte {
 	return file_inventory_proto_rawDescData
 }
 
+var file_inventory_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_inventory_proto_goTypes = []any{
-	(*ProductId)(nil),            // 0: inventory.ProductId
-	(*ProductInfo)(nil),          // 1: inventory.ProductInfo
-	(*StockAdjustment)(nil),      // 2: inventory.StockAdjustment
-	(*ProductFilter)(nil),        // 3: inventory.ProductFilter
-	(*LowStockSubscription)(nil), // 4: inventory.LowStockSubscription
-	(*LowStockAlert)(nil),        // 5: inventory.LowStockAlert
-	(*OrderItemRequest)(nil),     // 6: inventory.OrderItemRequest
-	(*OrderItemResponse)(nil),    // 7: inventory.OrderItemResponse
-	(*OperationStatus)(nil),      // 8: inventory.OperationStatus
+	(OrderItemRequest_ActionType)(0), // 0: inventory.OrderItemRequest.ActionType
+	(*ProductId)(nil),                // 1: inventory.ProductId
+	(*ProductInfo)(nil),              // 2: inventory.ProductInfo
+	(*StockAdjustment)(nil),          // 3: inventory.StockAdjustment
+	(*ProductFilter)(nil),            // 4: inventory.ProductFilter
+	(*LowStockSubscription)(nil),     // 5: inventory.LowStockSubscription
+	(*LowStockAlert)(nil),            // 6: inventory.LowStockAlert
+	(*OrderItemRequest)(nil),         // 7: inventory.OrderItemRequest
+	(*OrderItemResponse)(nil),        // 8: inventory.OrderItemResponse
+	(*OperationStatus)(nil),          // 9: inventory.OperationStatus
 }
 var file_inventory_proto_depIdxs = []int32{
-	0, // 0: inventory.InventoryService.GetProductInfo:input_type -> inventory.ProductId
-	1, // 1: inventory.InventoryService.AddProduct:input_type -> inventory.ProductInfo
-	1, // 2: inventory.InventoryService.UpdateProduct:input_type -> inventory.ProductInfo
-	0, // 3: inventory.InventoryService.RemoveProduct:input_type -> inventory.ProductId
-	2, // 4: inventory.InventoryService.AdjustStock:input_type -> inventory.StockAdjustment
-	2, // 5: inventory.InventoryService.BulkStockUpdate:input_type -> inventory.StockAdjustment
-	3, // 6: inventory.InventoryService.ListProducts:input_type -> inventory.ProductFilter
-	4, // 7: inventory.InventoryService.SubscribeLowStockAlerts:input_type -> inventory.LowStockSubscription
-	6, // 8: inventory.InventoryService.InteractiveOrderStock:input_type -> inventory.OrderItemRequest
-	1, // 9: inventory.InventoryService.GetProductInfo:output_type -> inventory.ProductInfo
-	8, // 10: inventory.InventoryService.AddProduct:output_type -> inventory.OperationStatus
-	8, // 11: inventory.InventoryService.UpdateProduct:output_type -> inventory.OperationStatus
-	8, // 12: inventory.InventoryService.RemoveProduct:output_type -> inventory.OperationStatus
-	8, // 13: inventory.InventoryService.AdjustStock:output_type -> inventory.OperationStatus
-	8, // 14: inventory.InventoryService.BulkStockUpdate:output_type -> inventory.OperationStatus
-	1, // 15: inventory.InventoryService.ListProducts:output_type -> inventory.ProductInfo
-	5, // 16: inventory.InventoryService.SubscribeLowStockAlerts:output_type -> inventory.LowStockAlert
-	7, // 17: inventory.InventoryService.InteractiveOrderStock:output_type -> inventory.OrderItemResponse
-	9, // [9:18] is the sub-list for method output_type
-	0, // [0:9] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: inventory.OrderItemRequest.action:type_name -> inventory.OrderItemRequest.ActionType
+	1,  // 1: inventory.InventoryService.GetProductInfo:input_type -> inventory.ProductId
+	2,  // 2: inventory.InventoryService.AddProduct:input_type -> inventory.ProductInfo
+	2,  // 3: inventory.InventoryService.UpdateProduct:input_type -> inventory.ProductInfo
+	1,  // 4: inventory.InventoryService.RemoveProduct:input_type -> inventory.ProductId
+	3,  // 5: inventory.InventoryService.AdjustStock:input_type -> inventory.StockAdjustment
+	3,  // 6: inventory.InventoryService.BulkStockUpdate:input_type -> inventory.StockAdjustment
+	4,  // 7: inventory.InventoryService.ListProducts:input_type -> inventory.ProductFilter
+	5,  // 8: inventory.InventoryService.SubscribeLowStockAlerts:input_type -> inventory.LowStockSubscription
+	7,  // 9: inventory.InventoryService.InteractiveOrderStock:input_type -> inventory.OrderItemRequest
+	2,  // 10: inventory.InventoryService.GetProductInfo:output_type -> inventory.ProductInfo
+	9,  // 11: inventory.InventoryService.AddProduct:output_type -> inventory.OperationStatus
+	9,  // 12: inventory.InventoryService.UpdateProduct:output_type -> inventory.OperationStatus
+	9,  // 13: inventory.InventoryService.RemoveProduct:output_type -> inventory.OperationStatus
+	9,  // 14: inventory.InventoryService.AdjustStock:output_type -> inventory.OperationStatus
+	9,  // 15: inventory.InventoryService.BulkStockUpdate:output_type -> inventory.OperationStatus
+	2,  // 16: inventory.InventoryService.ListProducts:output_type -> inventory.ProductInfo
+	6,  // 17: inventory.InventoryService.SubscribeLowStockAlerts:output_type -> inventory.LowStockAlert
+	8,  // 18: inventory.InventoryService.InteractiveOrderStock:output_type -> inventory.OrderItemResponse
+	10, // [10:19] is the sub-list for method output_type
+	1,  // [1:10] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_inventory_proto_init() }
@@ -691,13 +754,14 @@ func file_inventory_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_proto_rawDesc), len(file_inventory_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_inventory_proto_goTypes,
 		DependencyIndexes: file_inventory_proto_depIdxs,
+		EnumInfos:         file_inventory_proto_enumTypes,
 		MessageInfos:      file_inventory_proto_msgTypes,
 	}.Build()
 	File_inventory_proto = out.File
