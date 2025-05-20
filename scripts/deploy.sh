@@ -1,14 +1,16 @@
 #!/bin/bash
 set -e
 
-BANNER="""
+BANNER=$(
+  cat <<EOF
 ██████╗ ███████╗██████╗ ██╗      ██████╗ ██╗   ██╗
 ██╔══██╗██╔════╝██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝
 ██║  ██║█████╗  ██████╔╝██║     ██║   ██║ ╚████╔╝
 ██║  ██║██╔══╝  ██╔═══╝ ██║     ██║   ██║  ╚██╔╝
 ██████╔╝███████╗██║     ███████╗╚██████╔╝   ██║
 ╚═════╝ ╚══════╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝
-"""
+EOF
+)
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
 cd "$PROJECT_ROOT" || exit 1
@@ -32,7 +34,6 @@ log_success "Inventory service built."
 log_step "Building Docker images..."
 docker buildx bake
 log_success "Docker images built."
-
 
 log_step "Helm dependencies updating..."
 helm dependency update ./infrastructure/deployment/
