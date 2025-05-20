@@ -7,7 +7,7 @@
 package order
 
 import (
-	inventory "./proto/inventory"
+	inventory "Service-sharing-environment-project/proto/inventory"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"

@@ -1,17 +1,15 @@
 package main
 
 import (
-	"Service-sharing-environment-project/proto/inventory"
-	"Service-sharing-environment-project/proto/order"
-	"context"
+	invpb "Service-sharing-environment-project/proto/inventory"
+	orderpb "Service-sharing-environment-project/proto/order"
+	"Service-sharing-environment-project/services/order-service/internal"
 	"fmt"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"os"
-	"time"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -27,26 +25,6 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-type orderServer struct {
-	order.UnimplementedOrderServiceServer
-	inventoryClient inventory.InventoryServiceClient
-}
-
-func (s *orderServer) PlaceOrder(ctx context.Context, req *order.OrderRequest) (*order.OrderResponse, error) {
-	log.Printf("OrderService: Received PlaceOrder request for ProductID: %s, Quantity: %d", req.ProductId, req.Quantity)
-
-	stockReq := &inventory.HelloRequest{Name: req.ProductId}
-	stockRes, err := s.inventoryClient.SayHello(ctx, stockReq)
-	if err != nil {
-		log.Printf("OrderService: could not call InventoryService during PlaceOrder: %v", err)
-		return nil, fmt.Errorf("failed to check stock: %w", err)
-	}
-
-	log.Printf("OrderService: Inventory response for ProductID %s: %s", req.ProductId, stockRes.Message)
-
-	return &order.OrderResponse{Message: "Order placed successfully, stock says: " + stockRes.Message}, nil
-}
-
 func main() {
 	inventoryServiceTarget := getEnv("INVENTORY_SERVICE_ENDPOINT", "localhost:"+defaultInventoryServiceTargetPort)
 
@@ -58,7 +36,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	inventoryClient := inventory.NewInventoryServiceClient(conn)
+	inventoryClient := invpb.NewInventoryServiceClient(conn)
 	log.Println("Order Service: Successfully connected to Inventory Service.")
 
 	lis, err := net.Listen("tcp", orderServiceListenPort)
@@ -67,8 +45,8 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-
-	order.RegisterOrderServiceServer(grpcServer, &orderServer{inventoryClient: inventoryClient})
+	orderSrv := internal.NewOrderServer(inventoryClient)
+	orderpb.RegisterOrderServiceServer(grpcServer, orderSrv)
 
 	log.Printf("Order Service: Starting gRPC server, listening on %s", orderServiceListenPort)
 	go func() {
@@ -76,21 +54,6 @@ func main() {
 			log.Fatalf("Order Service: failed to serve gRPC: %v", err)
 		}
 	}()
-
-	log.Println("Order Service: Starting client loop to call Inventory Service...")
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		testProductId := "product-abc"
-		log.Printf("Order Service: Calling InventoryService.SayHello for ProductID: %s", testProductId)
-
-		helloReq := &inventory.HelloRequest{Name: testProductId}
-		helloRes, err := inventoryClient.SayHello(context.Background(), helloReq)
-		if err != nil {
-			log.Printf("Order Service: ERROR could not call InventoryService.SayHello: %v", err)
-			continue
-		}
-		log.Printf("Order Service: Response from InventoryService.SayHello for %s: %s", testProductId, helloRes.Message)
-	}
+	fmt.Println("Services running on port 50051")
+	grpcServer.Serve(lis)
 }

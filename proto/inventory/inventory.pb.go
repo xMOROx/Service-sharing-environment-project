@@ -629,7 +629,7 @@ const file_inventory_proto_rawDesc = "" +
 	"\x0fBulkStockUpdate\x12\x1a.inventory.StockAdjustment\x1a\x1a.inventory.OperationStatus(\x01\x12B\n" +
 	"\fListProducts\x12\x18.inventory.ProductFilter\x1a\x16.inventory.ProductInfo0\x01\x12V\n" +
 	"\x17SubscribeLowStockAlerts\x12\x1f.inventory.LowStockSubscription\x1a\x18.inventory.LowStockAlert0\x01\x12V\n" +
-	"\x15InteractiveOrderStock\x12\x1b.inventory.OrderItemRequest\x1a\x1c.inventory.OrderItemResponse(\x010\x01B\x1dZ\x1b./proto/inventory;inventoryb\x06proto3"
+	"\x15InteractiveOrderStock\x12\x1b.inventory.OrderItemRequest\x1a\x1c.inventory.OrderItemResponse(\x010\x01B?Z=Service-sharing-environment-project/proto/inventory;inventoryb\x06proto3"
 
 var (
 	file_inventory_proto_rawDescOnce sync.Once

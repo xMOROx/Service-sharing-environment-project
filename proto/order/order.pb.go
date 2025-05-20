@@ -7,7 +7,7 @@
 package order
 
 import (
-	inventory "./proto/inventory"
+	inventory "Service-sharing-environment-project/proto/inventory"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -377,7 +377,7 @@ const file_order_proto_rawDesc = "" +
 	"BuildOrder\x12\x1b.inventory.OrderItemRequest\x1a\x1c.inventory.OrderItemResponse(\x010\x01\x12J\n" +
 	"\rFinalizeOrder\x12\x1b.order.FinalizeOrderRequest\x1a\x1c.order.FinalizeOrderResponse\x12D\n" +
 	"\vCancelOrder\x12\x19.order.CancelOrderRequest\x1a\x1a.order.CancelOrderResponse\x12L\n" +
-	"\x11ConfirmOrderStock\x12\x1b.order.FinalizeOrderRequest\x1a\x1a.inventory.OperationStatusB\x15Z\x13./proto/order;orderb\x06proto3"
+	"\x11ConfirmOrderStock\x12\x1b.order.FinalizeOrderRequest\x1a\x1a.inventory.OperationStatusB7Z5Service-sharing-environment-project/proto/order;orderb\x06proto3"
 
 var (
 	file_order_proto_rawDescOnce sync.Once
