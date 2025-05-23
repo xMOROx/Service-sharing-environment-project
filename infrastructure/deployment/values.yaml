@@ -35,59 +35,81 @@ inventoryService:
 
 otel:
   collector:
-    endpoint: "{{ .Release.Name }}-opentelemetry-collector:4317"
+    endpoint: "demo-opentelemetry-collector:4317"
 
 opentelemetry-collector:
   enabled: true
   mode: deployment
   image:
-    repository: otel/opentelemetry-collector-contrib # Changed from otel/opentelemetry-collector-k8s
+    repository: otel/opentelemetry-collector-contrib
+  fullnameOverride: "otel-collector"
+
+  presets:
+    kubernetesAttributes:
+      enabled: true
+      extractAllPodLabels: true
+      extractAllPodAnnotations: true
+    kubeletMetrics:
+      enabled: false
+    clusterMetrics:
+      enabled: true
+
   config:
-    exporters:
-      prometheus:
-        endpoint: "0.0.0.0:8889"
-      debug: {}
-    processors:
-      batch: {}
-      memory_limiter:
-        check_interval: 5s
-        limit_percentage: 80
-        spike_limit_percentage: 25
     receivers:
-      otlp:
-        protocols:
-          grpc:
-            endpoint: ${env:MY_POD_IP}:4317
-          http:
-            endpoint: ${env:MY_POD_IP}:4318
+      jaeger: null
+      zipkin: null
+
+    exporters:
+      debug:
+        verbosity: detailed
+
+      prometheus:
+        endpoint: ${env:MY_POD_IP}:8889
+
     service:
       pipelines:
-        traces:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [debug] # Traces still go to debug exporter
+        traces: null
+
         metrics:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [prometheus] # Metrics now go to prometheus exporter
-        logs:
-          receivers: [otlp]
-          processors: [memory_limiter, batch]
-          exporters: [debug] # Logs still go to debug exporter
+          receivers:
+            - otlp
+            - prometheus
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - debug
+            - prometheus
 
-prometheus:
-  enabled: true
-  serverFiles:
-    prometheus.yml:
-      scrape_configs:
-        - job_name: "prometheus"
-          static_configs:
-            - targets: ["localhost:9090"]
+        logs: null
 
-        - job_name: "opentelemetry-collector"
-          scrape_interval: 15s
-          static_configs:
-            - targets:
-                [
-                  '{{ printf "%s-opentelemetry-collector:%d" .Release.Name 8889 }}',
-                ]
+  ports:
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+    metrics:
+      enabled: true
+      containerPort: 8889
+      servicePort: 8889
+      protocol: TCP
+
+  ingress:
+    enabled: false
+
+  serviceMonitor:
+    enabled: true
+
+    extraLabels:
+      release: prometheus
+
+kube-prometheus-stack:
+  grafana:
+    grafana.ini:
+      auth.anonymous:
+        enabled: true
+        org_role: Admin

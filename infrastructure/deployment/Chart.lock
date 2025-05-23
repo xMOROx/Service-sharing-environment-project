@@ -1,12 +1,9 @@
 dependencies:
-- name: prometheus
+- name: kube-prometheus-stack
   repository: https://prometheus-community.github.io/helm-charts
-  version: 27.0.0
+  version: 72.6.2
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.125.0
-- name: grafana
-  repository: https://grafana.github.io/helm-charts
-  version: 9.2.0
-digest: sha256:bba3aa38e1cfc8f190949bcd4b3a39400f9b46041be94d639ae058b1a052788a
-generated: "2025-05-23T15:14:36.149572169+02:00"
+digest: sha256:92f2b64916a88d681fbe7dcb62050a4bc210e5bc87bcd271acfad26d913fefbf
+generated: "2025-05-23T20:03:13.431030119+02:00"
