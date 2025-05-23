@@ -9,3 +9,7 @@ dependencies:
     version: "27.0"
     repository: "https://prometheus-community.github.io/helm-charts"
     condition: prometheus.enabled
+  - name: opentelemetry-collector
+    version: "0.125.0"
+    repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+    condition: opentelemetry-collector.enabled
