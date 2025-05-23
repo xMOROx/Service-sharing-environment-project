@@ -15,9 +15,6 @@ spec:
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
-        prometheus.io/scrape: "true"
-        prometheus.io/path: {{ .Values.prometheus.metricsPath | quote }}
-        prometheus.io/port: {{ .Values.orderService.service.metricPort | quote }}
       {{- end }}
       labels:
         {{- include "microservice-demo.orderService.selectorLabels" . | nindent 8 }}
@@ -49,9 +46,6 @@ spec:
           ports:
             - name: grpc
               containerPort: {{ .Values.orderService.service.port }}
-              protocol: TCP
-            - name: metrics
-              containerPort: {{ .Values.orderService.service.metricPort }} 
               protocol: TCP
           resources:
             {{- toYaml .Values.orderService.resources | nindent 12 }}

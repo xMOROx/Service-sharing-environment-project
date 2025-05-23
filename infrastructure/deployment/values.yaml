@@ -21,7 +21,6 @@ orderService:
   service:
     type: ClusterIP
     port: 50052
-    metricPort: 8050
   resources: {}
 
 inventoryService:
@@ -32,24 +31,21 @@ inventoryService:
   service:
     type: ClusterIP
     port: 50051
-    metricPort: 8050
   resources: {}
 
 otel:
   collector:
-    endpoint: "otel-collector.observability.svc.cluster.local:4317"
-
-prometheus:
-  enabled: true
-  metricsPath: "/metrics"
+    endpoint: "{{ .Release.Name }}-opentelemetry-collector:4317"
 
 opentelemetry-collector:
   enabled: true
   mode: deployment
   image:
-    repository: otel/opentelemetry-collector-k8s
+    repository: otel/opentelemetry-collector-contrib # Changed from otel/opentelemetry-collector-k8s
   config:
     exporters:
+      prometheus:
+        endpoint: "0.0.0.0:8889"
       debug: {}
     processors:
       batch: {}
@@ -69,12 +65,29 @@ opentelemetry-collector:
         traces:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [debug]
+          exporters: [debug] # Traces still go to debug exporter
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [debug]
+          exporters: [prometheus] # Metrics now go to prometheus exporter
         logs:
           receivers: [otlp]
           processors: [memory_limiter, batch]
-          exporters: [debug]
+          exporters: [debug] # Logs still go to debug exporter
+
+prometheus:
+  enabled: true
+  serverFiles:
+    prometheus.yml:
+      scrape_configs:
+        - job_name: "prometheus"
+          static_configs:
+            - targets: ["localhost:9090"]
+
+        - job_name: "opentelemetry-collector"
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                [
+                  '{{ printf "%s-opentelemetry-collector:%d" .Release.Name 8889 }}',
+                ]
