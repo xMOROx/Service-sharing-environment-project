@@ -34,7 +34,7 @@ spec:
           imagePullPolicy: {{ .Values.inventoryService.image.pullPolicy }}
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}"
+              value: "{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}" 
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
               value: "grpc"
             - name: OTEL_SERVICE_NAME
