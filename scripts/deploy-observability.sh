@@ -5,3 +5,4 @@ set -e
 ./deploy-loki.sh
 ./deploy-eventexporter.sh
 ./deploy-promtail.sh
+./deploy-otlp-collector.sh
