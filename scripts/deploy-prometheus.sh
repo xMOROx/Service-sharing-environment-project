@@ -29,5 +29,5 @@ log_success "Successfully added prometheus helm repository."
 
 log_step "Deploying prometheus to the Kubernetes cluster..."
 kubectl create namespace $NAMESPACE || true
-helm upgrade --install $DEPLOYMENT_NAME prometheus-community/kube-prometheus-stack -n $NAMESPACE --values $PROJECT_ROOT/infrastructure/deployment/prometheus.yaml
+helm upgrade --install $DEPLOYMENT_NAME prometheus-community/kube-prometheus-stack -n $NAMESPACE --values $PROJECT_ROOT/infrastructure/deployment/kube-prometheus-stack.yaml
 log_success "Prometheus deployed successfully to the Kubernetes cluster in namespace $NAMESPACE."
