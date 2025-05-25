@@ -1,0 +1,13 @@
+grafana:
+  grafana.ini:
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.loki.svc.cluster.local/
+      access: proxy
+      isDefault: false
+      orgId: 1
