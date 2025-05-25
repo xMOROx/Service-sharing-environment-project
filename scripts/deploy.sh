@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 BANNER=$(
@@ -38,6 +38,10 @@ log_success "Docker images built."
 log_step "Helm dependencies updating..."
 helm dependency update ./infrastructure/deployment/
 log_success "Helm dependencies updated."
+
+log_step "Deploying observability plane ..."
+./deploy-observability.sh
+log_success "Observability plane deployed."
 
 log_step "Deploying application..."
 helm install demo ./infrastructure/deployment/ -n default
