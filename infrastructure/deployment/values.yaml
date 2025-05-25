@@ -35,4 +35,4 @@ inventoryService:
 
 otel:
   collector:
-    endpoint: "demo-opentelemetry-collector:4317"
+    endpoint: "otlp-collector-opentelemetry-collector.otlp-collector.svc.cluster.local:4317"
