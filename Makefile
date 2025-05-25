@@ -1,4 +1,4 @@
-.PHONY: all proto clean order inventory deploy images uninstall clean-images forward-ports clean-ports
+.PHONY: all proto clean order inventory deploy images uninstall clean-images forward-ports clean-ports deploy-observability create-cluster remove-cluster
 
 ORDER_DIR=./services/order-service
 INVENTORY_DIR=./services/inventory-service
@@ -30,6 +30,9 @@ inventory:
 deploy:
 	./scripts/deploy.sh
 
+deploy-observability:
+	./scripts/deploy-observability.sh
+
 uninstall: clean-ports
 	./scripts/uninstall.sh
 
@@ -38,3 +41,10 @@ forward-ports:
 
 clean-ports:
 	./scripts/clean-ports.sh
+
+create-cluster:
+	./scripts/create-cluster.sh
+
+remove-cluster:
+	./scripts/remove-cluster.sh
+
