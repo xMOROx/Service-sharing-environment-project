@@ -40,7 +40,7 @@ helm dependency update ./infrastructure/deployment/
 log_success "Helm dependencies updated."
 
 log_step "Deploying observability plane ..."
-./deploy-observability.sh
+$PROJECT_ROOT/scripts/deploy-observability.sh
 log_success "Observability plane deployed."
 
 log_step "Deploying application..."

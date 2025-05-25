@@ -25,6 +25,7 @@ helm uninstall loki -n loki || true
 helm uninstall promtail -n promtail || true
 helm uninstall event-exporter -n event-exporter || true
 helm uninstall prometheus -n prometheus || true
+helm uninstall otlp-collector -n otlp-collector || true
 helm uninstall demo -n default || true
 log_success "Application uninstalled."
 
