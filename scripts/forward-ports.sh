@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel)
@@ -8,10 +8,6 @@ source "$PROJECT_ROOT/scripts/utils.sh"
 
 GRAFANA_PORT=3000
 
-log_step "Finding grafana pod name"
-grafana_pod=$(kubectl get pods -n default -l app.kubernetes.io/name=grafana -o jsonpath='{.items[*].metadata.name}')
-log_success "Found grafana pod: $grafana_pod"
-
 log_step "Forwarding grafana port"
-kubectl port-forward "${grafana_pod}" -n default $GRAFANA_PORT:$GRAFANA_PORT &
+kubectl port-forward deployment/prometheus-grafana -n prometheus $GRAFANA_PORT
 log_success "Forwarding grafana port to localhost:$GRAFANA_PORT"
