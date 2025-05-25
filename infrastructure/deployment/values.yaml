@@ -66,9 +66,25 @@ opentelemetry-collector:
       prometheus:
         endpoint: ${env:MY_POD_IP}:8889
 
+      loki:
+        endpoint: http://demo-loki.default.svc.cluster.local:3100/otlp
+
+      # otlp/tempo:
+      #   endpoint: http://tempo:4317
+      #   tls:
+      #     insecure: true
+
     service:
       pipelines:
-        traces: null
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - debug
+            # - otlp/tempo
 
         metrics:
           receivers:
@@ -81,7 +97,15 @@ opentelemetry-collector:
             - debug
             - prometheus
 
-        logs: null
+        logs:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - debug
+            - loki
 
   ports:
     jaeger-compact:
@@ -106,10 +130,3 @@ opentelemetry-collector:
 
     extraLabels:
       release: prometheus
-
-kube-prometheus-stack:
-  grafana:
-    grafana.ini:
-      auth.anonymous:
-        enabled: true
-        org_role: Admin
