@@ -41,6 +41,8 @@ spec:
               value: "order-service"
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.environment=development" 
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true" 
             - name: INVENTORY_SERVICE_ENDPOINT
               value: "dns:///{{ .Release.Name }}-inventory-service:{{ .Values.inventoryService.service.port }}"
           ports:
