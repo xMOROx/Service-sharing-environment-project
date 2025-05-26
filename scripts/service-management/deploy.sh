@@ -12,11 +12,10 @@ BANNER=$(
 EOF
 )
 
-PROJECT_ROOT=$(git rev-parse --show-toplevel)
-cd "$PROJECT_ROOT" || exit 1
-
 # shellcheck disable=SC1091
-source "$PROJECT_ROOT/scripts/utils.sh"
+source "$(dirname "$0")/../utils.sh"
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../config.sh"
 
 show_banner_from_variable
 
@@ -40,11 +39,11 @@ helm dependency update ./infrastructure/deployment/
 log_success "Helm dependencies updated."
 
 log_step "Deploying observability plane ..."
-$PROJECT_ROOT/scripts/deploy-observability.sh
+$PROJECT_ROOT/scripts/observability/deploy-observability.sh
 log_success "Observability plane deployed."
 
 log_step "Deploying application..."
-helm install demo ./infrastructure/deployment/ -n default
+helm install demo ./infrastructure/deployment/ -n $APP_NAMESPACE --create-namespace || exit 1
 log_success "Application deployed."
 
 log_info "Deployment complete. Make sure your Kubernetes cluster is configured and accessible."

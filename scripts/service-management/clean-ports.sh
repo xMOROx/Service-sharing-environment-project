@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_ROOT=$(git rev-parse --show-toplevel)
-
 # shellcheck disable=SC1091
-source "$PROJECT_ROOT/scripts/utils.sh"
+source "$(dirname "$0")/../utils.sh"
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../config.sh"
 
 log_step "Finding grafana process id"
 grafana_process_id=$(pgrep -f "kubectl port-forward .*grafana.*$GRAFANA_PORT" || true)

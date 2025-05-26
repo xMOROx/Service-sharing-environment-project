@@ -12,21 +12,21 @@ BANNER=$(
 EOF
 )
 
-PROJECT_ROOT=$(git rev-parse --show-toplevel)
-cd "$PROJECT_ROOT" || exit 1
-
 # shellcheck disable=SC1091
-source "$PROJECT_ROOT/scripts/utils.sh"
+source "$(dirname "$0")/../utils.sh"
+# shellcheck disable=SC1091
+source "$(dirname "$0")/../config.sh"
 
 show_banner_from_variable
 
 log_step "Uninstalling application..."
-helm uninstall loki -n loki || true
-helm uninstall promtail -n promtail || true
-helm uninstall event-exporter -n event-exporter || true
-helm uninstall prometheus -n prometheus || true
-helm uninstall otlp-collector -n otlp-collector || true
-helm uninstall demo -n default || true
+helm uninstall $HELM_LOKI_DEPLOYMENT_NAME -n $LOKI_NAMESPACE || true
+helm uninstall $HELM_TEMPO_DEPLOYMENT_NAME -n $TEMPO_NAMESPACE || true
+helm uninstall $HELM_PROMTAIL_DEPLOYMENT_NAME -n $PROMTAIL_NAMESPACE || true
+helm uninstall $HELM_EVENTEXPORTER_DEPLOYMENT_NAME -n $EVENTEXPORTER_NAMESPACE || true
+helm uninstall $HELM_KUBE_PROMETHEUS_STACK_DEPLOYMENT_NAME -n $KUBE_PROMETHEUS_STACK_NAMESPACE || true
+helm uninstall $HELM_OTEL_DEPLOYMENT_NAME -n $OTEL_COLLECTOR_NAMESPACE || true
+helm uninstall $HELM_APP_DEPLOYMENT_NAME -n $APP_NAMESPACE || true
 log_success "Application uninstalled."
 
 log_info "Uninstallation complete."
