@@ -21,3 +21,8 @@ grafana:
       access: proxy
       isDefault: false
       orgId: 1
+    - name: Tempo
+      type: tempo
+      url: http://tempo-query-frontend.tempo.svc.cluster.local:3100
+      access: proxy
+      isDefault: false
