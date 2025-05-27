@@ -20,8 +20,13 @@ source "$(dirname "$0")/../config.sh"
 show_banner_from_variable
 
 log_step "Deploying otel-collector to the Kubernetes cluster..."
-kubectl create namespace $OTEL_COLLECTOR_NAMESPACE || true
-helm install $HELM_OTEL_DEPLOYMENT_NAME open-telemetry/opentelemetry-collector \
-  --namespace $OTEL_COLLECTOR_NAMESPACE \
-  --values $OTEL_COLLECTOR_VALUES_PATH
+kubectl create namespace "$OTEL_COLLECTOR_NAMESPACE" || true
+
+helm upgrade \
+  --install "$HELM_OTEL_DEPLOYMENT_NAME" \
+  --namespace "$OTEL_COLLECTOR_NAMESPACE" \
+  --values "$OTEL_COLLECTOR_VALUES_PATH" \
+  --version "$HELM_OTEL_COLLECTOR_VERSION" \
+  open-telemetry/opentelemetry-collector
+
 log_success "Otel-collector deployed successfully to the Kubernetes cluster in namespace $OTEL_COLLECTOR_NAMESPACE."
