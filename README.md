@@ -57,6 +57,23 @@ A simple system for managing orders and inventory levels.
 
 ## 5. Environment configuration description
 
+### Linux Setup
+
+To set up the development environment on a Linux system, you will need the following tools:
+
+* **Go**: The programming language used for the services. Installation instructions can be found at [https://golang.org/doc/install](https://golang.org/doc/install).
+* **Docker**: For containerizing applications. Install Docker Engine from [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/). Ensure Docker Buildx is available (usually included with recent Docker versions).
+* **Kind**: For running local Kubernetes clusters. Installation guide: [https://kind.sigs.k8s.io/docs/user/quick-start/#installation](https://kind.sigs.k8s.io/docs/user/quick-start/#installation).
+* **Helm**: The package manager for Kubernetes. Installation guide: [https://helm.sh/docs/intro/install/](https://helm.sh/docs/intro/install/).
+* **Protobuf Compiler (`protoc`)**: For generating Go code from `.proto` files. Installation instructions can be found at [https://grpc.io/docs/protoc-installation/](https://grpc.io/docs/protoc-installation/).
+  * You will also need the Go plugins for protoc: [https://grpc.io/docs/languages/go/quickstart/](https://grpc.io/docs/languages/go/quickstart/)
+
+    Ensure that your `GOBIN` directory (usually `$GOPATH/bin` or `$HOME/go/bin`) is in your system's `PATH`.
+* **make**: To use the Makefile for common operations. Usually available by default on most Linux distributions. If not, install it using your distribution's package manager (e.g., `sudo apt install make` on Debian/Ubuntu).
+* **bash**: The scripts in this project are written in bash. Ensure it's available (default on most Linux systems).
+
+Once these tools are installed, you can proceed with the installation and deployment steps outlined in this README.
+
 ## 6. Installation method
 
 ## 7. How to reproduce - step by step
@@ -78,3 +95,27 @@ A simple system for managing orders and inventory levels.
 ## 10. Summary – conclusions
 
 ## 11. References
+
+* **OpenTelemetry:** [https://opentelemetry.io/](https://opentelemetry.io/)
+* **Go:** [https://golang.org/](https://golang.org/)
+* **Docker:** [https://www.docker.com/](https://www.docker.com/)
+* **Kubernetes:** [https://kubernetes.io/](https://kubernetes.io/)
+* **Kind (Kubernetes in Docker):** [https://kind.sigs.k8s.io/](https://kind.sigs.k8s.io/)
+* **Helm:** [https://helm.sh/](https://helm.sh/)
+* **gRPC:** [https://grpc.io/](https://grpc.io/)
+* **Protocol Buffers:** [https://developers.google.com/protocol-buffers](https://developers.google.com/protocol-buffers)
+
+### Helm Charts Used (from Artifact Hub or other sources)
+
+* **Kube Prometheus Stack:** For Prometheus and Grafana deployment (Version: 72.6.2).
+  * Typically found on [Artifact Hub](https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack)
+* **Loki:** For log aggregation (Version: 6.30.0).
+  * Typically found on [Artifact Hub](https://artifacthub.io/packages/helm/grafana/loki)
+* **Tempo:** For distributed tracing (Version: 1.40.2).
+  * Typically found on [Artifact Hub](https://artifacthub.io/packages/helm/grafana/tempo)
+* **OpenTelemetry Collector:** For collecting telemetry data (Version: 0.125.0).
+  * Typically found on [Artifact Hub](https://artifacthub.io/packages/helm/open-telemetry/opentelemetry-collector)
+* **Promtail:** For shipping logs to Loki (Version: 6.16.6).
+  * Typically found on [Artifact Hub](https://artifacthub.io/packages/helm/grafana/promtail)
+* **Kubernetes Event Exporter:** For exporting Kubernetes events (Version: 3.5.3).
+  * Typically found on [Artifact Hub](https://artifacthub.io/packages/helm/bitnami/kubernetes-event-exporter)

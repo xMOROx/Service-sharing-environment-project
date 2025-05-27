@@ -1,0 +1,124 @@
+mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+presets:
+  kubernetesAttributes:
+    enabled: true
+  logsCollection:
+    enabled: true
+    includeCollectorLogs: true
+
+config:
+  receivers:
+    jaeger: null
+    zipkin: null
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: "otel-collector"
+            scrape_interval: 5s
+            static_configs:
+              - targets: ["127.0.0.1:8888"]
+
+  processors:
+    batch:
+      send_batch_size: 8192
+      timeout: 5s
+    memory_limiter:
+      check_interval: 5s
+      limit_mib: 800
+      spike_limit_mib: 150
+    transform:
+      metric_statements:
+        - context: datapoint
+          statements:
+            - set(attributes["namespace"], resource.attributes["k8s.namespace.name"])
+            - set(attributes["container"], resource.attributes["k8s.container.name"])
+            - set(attributes["pod"], resource.attributes["k8s.pod.name"])
+
+  exporters:
+    debug:
+      verbosity: detailed
+    otlphttp/logs:
+      endpoint: http://loki-gateway.loki.svc.cluster.local/otlp
+      tls:
+        insecure: true
+    otlp/traces:
+      endpoint: http://tempo.tempo.svc.cluster.local:4317
+      tls:
+        insecure: true
+    prometheus:
+      endpoint: ${MY_POD_IP}:8889
+      send_timestamps: true
+      metric_expiration: 30m
+      enable_open_metrics: true
+      resource_to_telemetry_conversion:
+        enabled: true
+  extensions:
+    health_check:
+      endpoint: 0.0.0.0:13133
+
+  service:
+    extensions:
+      - health_check
+    pipelines:
+      traces:
+        receivers:
+          - otlp
+        exporters:
+          - debug
+          - otlp/traces
+      metrics:
+        receivers:
+          - otlp
+          - prometheus
+        processors:
+          - memory_limiter
+          - batch
+          - transform
+        exporters:
+          - debug
+          - prometheus
+      logs:
+        receivers:
+          - otlp
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - debug
+          - otlphttp/logs
+    telemetry:
+      logs:
+        level: DEBUG
+        initial_fields:
+          service: demo-otel-collector
+      metrics:
+        level: detailed
+        address: 0.0.0.0:8888
+
+ports:
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+  metrics:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+
+ingress:
+  enabled: false

@@ -1,0 +1,28 @@
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+      - job_name: "otel-collector"
+        scrape_interval: 15s
+        static_configs:
+          - targets:
+              [
+                "otel-collector-opentelemetry-collector.otel-collector.svc.cluster.local:8889",
+              ]
+grafana:
+  grafana.ini:
+    auth.anonymous:
+      enabled: true
+      org_role: Admin
+
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-gateway.loki.svc.cluster.local/
+      access: proxy
+      isDefault: false
+      orgId: 1
+    - name: Tempo
+      type: tempo
+      url: http://tempo-query-frontend.tempo.svc.cluster.local:3100
+      access: proxy
+      isDefault: false

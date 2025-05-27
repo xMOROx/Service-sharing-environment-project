@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 BANNER=$(
@@ -12,11 +12,8 @@ BANNER=$(
 EOF
 )
 
-PROJECT_ROOT=$(git rev-parse --show-toplevel)
-cd "$PROJECT_ROOT" || exit 1
-
 # shellcheck disable=SC1091
-source "$PROJECT_ROOT/scripts/utils.sh"
+source "$(dirname "$0")/utils.sh"
 
 show_banner_from_variable
 

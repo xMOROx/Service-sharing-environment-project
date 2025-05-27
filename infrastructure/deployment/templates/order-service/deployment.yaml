@@ -15,9 +15,6 @@ spec:
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
-        prometheus.io/scrape: "true"
-        prometheus.io/path: {{ .Values.prometheus.metricsPath | quote }}
-        prometheus.io/port: {{ .Values.orderService.service.metricPort | quote }}
       {{- end }}
       labels:
         {{- include "microservice-demo.orderService.selectorLabels" . | nindent 8 }}
@@ -33,25 +30,24 @@ spec:
         - name: order-service
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag | default .Chart.AppVersion }}"
+          image: "{{ if .Values.localRegistry.enabled }}{{ .Values.localRegistry.host }}/{{ end }}{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.orderService.image.pullPolicy }}
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}" 
+              value: "{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}" 
             - name: OTEL_EXPORTER_OTLP_PROTOCOL 
               value: "grpc"
             - name: OTEL_SERVICE_NAME
               value: "order-service"
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: "deployment.environment=development" 
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true" 
             - name: INVENTORY_SERVICE_ENDPOINT
               value: "dns:///{{ .Release.Name }}-inventory-service:{{ .Values.inventoryService.service.port }}"
           ports:
             - name: grpc
               containerPort: {{ .Values.orderService.service.port }}
-              protocol: TCP
-            - name: metrics
-              containerPort: {{ .Values.orderService.service.metricPort }} 
               protocol: TCP
           resources:
             {{- toYaml .Values.orderService.resources | nindent 12 }}

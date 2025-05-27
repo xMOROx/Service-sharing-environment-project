@@ -15,9 +15,6 @@ spec:
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
-        prometheus.io/scrape: "true"
-        prometheus.io/path: {{ .Values.prometheus.metricsPath | quote }}
-        prometheus.io/port: {{ .Values.inventoryService.service.metricPort | quote }}
       {{- end }}
       labels:
         {{- include "microservice-demo.inventoryService.selectorLabels" . | nindent 8 }}
@@ -33,13 +30,15 @@ spec:
         - name: inventory-service
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.inventoryService.image.repository }}:{{ .Values.inventoryService.image.tag | default .Chart.AppVersion }}"
+          image: "{{ if .Values.localRegistry.enabled }}{{ .Values.localRegistry.host }}/{{ end }}{{ .Values.inventoryService.image.repository }}:{{ .Values.inventoryService.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.inventoryService.image.pullPolicy }}
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}"
+              value: "{{ include "microservice-demo.otelCollectorHost" . }}:{{ include "microservice-demo.otelCollectorPort" . }}" 
             - name: OTEL_EXPORTER_OTLP_PROTOCOL
               value: "grpc"
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              value: "true" 
             - name: OTEL_SERVICE_NAME
               value: "inventory-service"
             - name: OTEL_RESOURCE_ATTRIBUTES
@@ -47,9 +46,6 @@ spec:
           ports:
             - name: grpc
               containerPort: {{ .Values.inventoryService.service.port }}
-              protocol: TCP
-            - name: metrics
-              containerPort: {{ .Values.inventoryService.service.metricPort }} 
               protocol: TCP
           resources:
             {{- toYaml .Values.inventoryService.resources | nindent 12 }}

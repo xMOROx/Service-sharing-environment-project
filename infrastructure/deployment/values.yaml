@@ -2,6 +2,10 @@ replicaCount: 1
 
 imagePullSecrets: []
 
+localRegistry:
+  enabled: false
+  host: localhost:5001
+
 serviceAccount:
   create: true
   annotations: {}
@@ -21,7 +25,6 @@ orderService:
   service:
     type: ClusterIP
     port: 50052
-    metricPort: 8050
   resources: {}
 
 inventoryService:
@@ -32,13 +35,8 @@ inventoryService:
   service:
     type: ClusterIP
     port: 50051
-    metricPort: 8050
   resources: {}
 
 otel:
   collector:
-    endpoint: "otel-collector.observability.svc.cluster.local:4317"
-
-prometheus:
-  enabled: true
-  metricsPath: "/metrics"
+    endpoint: "http://otel-collector-opentelemetry-collector.otel-collector.svc.cluster.local:4317"
