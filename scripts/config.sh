@@ -46,4 +46,3 @@ KUBE_PROMETHEUS_STACK_VALUES_PATH="${PROJECT_ROOT}/infrastructure/observability/
 EVENTEXPORTER_VALUES_PATH="${PROJECT_ROOT}/infrastructure/observability/event-exporter-values.yaml"
 
 GRAFANA_PORT=3000
-

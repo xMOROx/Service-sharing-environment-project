@@ -30,7 +30,7 @@ spec:
         - name: order-service
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag | default .Chart.AppVersion }}"
+          image: "{{ if .Values.localRegistry.enabled }}{{ .Values.localRegistry.host }}/{{ end }}{{ .Values.orderService.image.repository }}:{{ .Values.orderService.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.orderService.image.pullPolicy }}
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT

@@ -30,7 +30,7 @@ spec:
         - name: inventory-service
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.inventoryService.image.repository }}:{{ .Values.inventoryService.image.tag | default .Chart.AppVersion }}"
+          image: "{{ if .Values.localRegistry.enabled }}{{ .Values.localRegistry.host }}/{{ end }}{{ .Values.inventoryService.image.repository }}:{{ .Values.inventoryService.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.inventoryService.image.pullPolicy }}
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
