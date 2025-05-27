@@ -8,7 +8,7 @@ source "$(dirname "$0")/../config.sh"
 
 log_step "Checking for local registry..."
 if ! docker inspect -f '{{.State.Running}}' "kind-registry" 2>/dev/null | grep -q "true"; then
-  log_warn "Local registry 'kind-registry' is not running. Skipping image push to local registry."
+  log_warning "Local registry 'kind-registry' is not running. Skipping image push to local registry."
   exit 0
 fi
 log_success "Local registry 'kind-registry' found."
