@@ -74,6 +74,51 @@ To set up the development environment on a Linux system, you will need the follo
 
 Once these tools are installed, you can proceed with the installation and deployment steps outlined in this README.
 
+### Windows Setup: WSL2 + Docker Desktop
+
+Setting up a development environment on Windows can be done using **WSL2 (Windows Subsystem for Linux)** in combination with **Docker Desktop**.  
+Most steps follow the **Linux Setup** - except for the **Kind** and **Docker** installation.  
+Docker Desktop automatically:
+
+- integrates with WSL2 distributions,  
+- provides a built-in Kubernetes cluster.
+
+#### Docker Desktop Configuration
+
+1. **Enable WSL integration** for your WSL distribution:  
+Open Docker Desktop and go to  `Settings -> Resources -> WSL Integration`, then make sure your desired distro is enabled.
+
+2. **Enable Kubernetes support**:  
+Navigate to `Settings -> Kubernetes -> Enable Kubernetes` and enable Kubernetes cluster.
+
+#### Verifying Setup
+
+Use the following commands **inside your WSL terminal (e.g. Ubuntu)**:
+
+```bash
+docker version
+```
+
+- The output should indicate: `Server: Docker Desktop`.
+
+```bash
+kubectl config get-contexts
+```
+
+- You should see a context named `docker-desktop`.
+
+```bash
+kubectl config current-context
+```
+
+- This should return `docker-desktop`.  
+  If not, switch using:
+
+```bash
+kubectl config use-context docker-desktop
+```
+
+
 ## 6. Installation method
 
 ## 7. How to reproduce - step by step
