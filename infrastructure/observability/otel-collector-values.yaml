@@ -56,7 +56,7 @@ config:
       endpoint: http://tempo.tempo.svc.cluster.local:4317
       tls:
         insecure: true
-    otlp/profilling:
+    otlp/profiling:
       endpoint: http://pyroscope.pyroscope.svc.cluster.local:4040
       tls:
         insecure: true
