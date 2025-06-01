@@ -118,8 +118,71 @@ kubectl config current-context
 kubectl config use-context docker-desktop
 ```
 
-
 ## 6. Installation method
+
+This project uses a `Makefile` to streamline the installation and deployment process. Ensure you have all the prerequisite tools listed in [Section 5: Environment configuration description](#5-environment-configuration-description) installed before proceeding.
+
+### Quick Start: Deploy Everything
+
+The simplest way to get everything up and running is to use the default `make` target, which deploys the entire application stack including the observability components.
+
+```bash
+make all
+```
+
+Alternatively, you can explicitly run:
+
+```bash
+make deploy
+```
+
+This command will execute a series of steps orchestrated by scripts in the `scripts/` directory:
+
+1. **Generate Protocol Buffers**: Runs `./scripts/generate-proto.sh` to compile `.proto` files into Go code.
+2. **Build Go Services**: Compiles the `order-service` and `inventory-service`.
+3. **Build Docker Images**: Uses `docker buildx bake` (as defined in `docker-bake.hcl`) to build container images for the services.
+4. **Push Images to Local Registry**: If a local Kind registry was set up (e.g., via `make create-cluster`), images are pushed to it by `./scripts/service-management/push-to-local-registry.sh`.
+5. **Deploy Observability Stack**: Executes `./scripts/observability/deploy-observability.sh` which uses Helm to deploy:
+    * Prometheus & Grafana (from `kube-prometheus-stack-values.yaml`)
+    * Loki (from `loki-values.yaml`)
+    * Tempo (from `tempo-values.yaml`)
+    * OpenTelemetry Collector (from `otel-collector-values.yaml`)
+    * Promtail (from `promtail-values.yaml`)
+    * Kubernetes Event Exporter (from `event-exporter-values.yaml`)
+6. **Deploy Application Services**: Executes `./scripts/service-management/deploy.sh` which uses Helm to deploy the `order-service` and `inventory-service` using the chart in `infrastructure/deployment/`.
+
+### Individual Makefile Targets
+
+For more granular control over the build, deployment, and management processes, you can use the following `make` targets:
+
+* **Cluster Management**:
+  * `make create-cluster`: Creates a local Kind Kubernetes cluster (named `demo-k8s-lab` as per `scripts/config.sh`) and sets up a local Docker registry. Uses `infrastructure/kind/kind.yaml`.
+  * `make remove-cluster`: Removes the local Kind cluster.
+
+* **Build Operations**:
+  * `make proto`: Generates Go code from `.proto` files using `./scripts/generate-proto.sh`.
+  * `make build-images`: Builds Docker images for the services using `docker buildx bake`.
+  * `make order`: Builds only the `order-service` binary.
+  * `make inventory`: Builds only the `inventory-service` binary.
+
+* **Deployment Operations**:
+  * `make deploy`: Deploys the application services and the full observability stack (this is the default target for `make all`).
+  * `make deploy-observability`: Deploys only the observability stack.
+
+* **Port Management & Access**:
+  * `make forward-ports`: Forwards the Grafana service port (default `3000` as per `scripts/config.sh`) to your local machine using `./scripts/service-management/forward-ports.sh`.
+  * `make clean-ports`: Stops any active port forwarding started by `make forward-ports`.
+
+* **Cleaning Up**:
+  * `make uninstall`: Uninstalls all Helm releases for the application and observability stack and cleans forwarded ports.
+  * `make uninstall-observability`: Uninstalls only the observability stack using `./scripts/observability/uninstall-observability.sh`.
+  * `make clean`: Removes generated Protobuf files and compiled Go binaries.
+  * `make clean-images`: Removes the compiled Go binaries from the service directories.
+
+* **Help**:
+  * `make help`: Displays a list of all available targets and their descriptions.
+
+The `Makefile` targets call various shell scripts located in the `scripts/` directory. These scripts, in turn, utilize Kubernetes manifests, Helm charts (from `infrastructure/deployment/` and `infrastructure/observability/`), Dockerfiles (from `infrastructure/docker/`), and Kind configurations (from `infrastructure/kind/`) to manage the environment.
 
 ## 7. How to reproduce - step by step
 
