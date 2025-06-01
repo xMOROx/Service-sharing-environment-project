@@ -26,3 +26,8 @@ grafana:
       url: http://tempo-query-frontend.tempo.svc.cluster.local:3100
       access: proxy
       isDefault: false
+    - name: Pyroscope
+      type: grafana-pyroscope-datasource
+      url: http://pyroscope.pyroscope.svc.cluster.local:4040
+      access: proxy
+      isDefault: false
