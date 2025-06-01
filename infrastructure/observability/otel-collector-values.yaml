@@ -1,8 +1,10 @@
 mode: deployment
 
 image:
-  repository: grafana/pyroscope-otel-collector
-  tag: latest
+  repository: otel/opentelemetry-collector-contrib
+
+command:
+  extraArgs: [--feature-gates=service.profilesSupport]
 
 presets:
   kubernetesAttributes:
@@ -56,7 +58,7 @@ config:
       endpoint: http://tempo.tempo.svc.cluster.local:4317
       tls:
         insecure: true
-    otlp/profiling:
+    otlp/profiles:
       endpoint: http://pyroscope.pyroscope.svc.cluster.local:4040
       tls:
         insecure: true
@@ -101,11 +103,11 @@ config:
         exporters:
           - debug
           - otlphttp/logs
-      profilling:
+      profiles:
         receivers: 
           - otlp
         exporters: 
-          - pyroscope
+          - otlp/profiles
 
     telemetry:
       logs:
