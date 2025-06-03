@@ -4,11 +4,10 @@ import (
 	"context"
 	"log"
 	"net"
-	"net/http"
 
 	invpb "Service-sharing-environment-project/proto/inventory"
-	"Service-sharing-environment-project/services/inventory-service/internal"
-	"Service-sharing-environment-project/telemetry"
+	internal "Service-sharing-environment-project/services/inventory-service/internal"
+	telemetry "Service-sharing-environment-project/telemetry"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -17,40 +16,43 @@ import (
 const port = ":50051"
 
 func main() {
-	    ctx := context.Background()
-    // Tracing
+    ctx := context.Background()
+
+    // ── Tracing setup ─────────────────────────────────────────────────────────
     tp, err := telemetry.InitTracer(ctx, "inventory-service")
     if err != nil {
         log.Fatalf("Inventory: tracer init error: %v", err)
     }
-    defer tp.Shutdown(ctx)
+    defer func() {
+        if err := tp.Shutdown(ctx); err != nil {
+            log.Printf("Inventory: error shutting down tracer: %v", err)
+        }
+    }()
 
-    // Metrics
-    mp, promHandler, err := telemetry.InitMetrics(ctx, "inventory-service")
+    // ── Metrics setup (OTLP/gRPC) ──────────────────────────────────────────────
+    mp, err := telemetry.InitMetrics(ctx, "inventory-service")
     if err != nil {
         log.Fatalf("Inventory: metrics init error: %v", err)
     }
-    // Serve Prometheus metrics
-    go func() {
-        http.Handle("/metrics", promHandler)
-        log.Println("Inventory: metrics endpoint -> :2222/metrics")
-        log.Fatal(http.ListenAndServe(":2222", nil))
-    }()
+    // UWAGA: nie wystawiamy Prometheus HTTP /metrics – metryki pushują się do OTLP Collector
 
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("Inventory Service: failed to listen: %v", err)
-	}
+    // ── Start gRPC server ──────────────────────────────────────────────────────
+    lis, err := net.Listen("tcp", port)
+    if err != nil {
+        log.Fatalf("Inventory Service: failed to listen: %v", err)
+    }
 
     grpcServer := grpc.NewServer(
-        grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
-        grpc.StreamInterceptor(otelgrpc.StreamServerInterceptor()),
+        // ❶ Usuwamy grpc.WithTransportCredentials(insecure.NewCredentials())
+        // ❷ Rejestrujemy StatsHandler, żeby OTel/Instruments automatycznie łapało spany i metryki
+        grpc.StatsHandler(otelgrpc.NewServerHandler()),
     )
+
     invSrv := internal.NewInventoryServer(mp.Meter("inventory-service"))
     invpb.RegisterInventoryServiceServer(grpcServer, invSrv)
 
-	log.Printf("Inventory Service: Starting gRPC server, listening on %s", port)
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Inventory Service: failed to serve gRPC: %v", err)
-	}
+    log.Printf("Inventory Service: Starting gRPC server, listening on %s", port)
+    if err := grpcServer.Serve(lis); err != nil {
+        log.Fatalf("Inventory Service: failed to serve gRPC: %v", err)
+    }
 }

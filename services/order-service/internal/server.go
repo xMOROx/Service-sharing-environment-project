@@ -90,10 +90,9 @@ func (s *OrderServer) BuildOrder(stream orderpb.OrderService_BuildOrderServer) e
             end()
             return err
         }
-        // Tutaj używamy req.Quantity, a nie GetQuantity()
         available := invResp.AvailableQuantity >= req.RequestedQuantity
 
-        // 4) Zwracamy poprawny typ z inventory: pole AvailableQuantity, nie RemainingQuantity
+        // 4) Zwracamy odpowiedni typ z inventory (pole AvailableQuantity)
         resp := &invpb.OrderItemResponse{
             ProductId:         req.ProductId,
             Available:         available,
@@ -106,7 +105,6 @@ func (s *OrderServer) BuildOrder(stream orderpb.OrderService_BuildOrderServer) e
         end()
     }
 }
-
 
 func (s *OrderServer) FinalizeOrder(ctx context.Context, req *orderpb.FinalizeOrderRequest) (*orderpb.FinalizeOrderResponse, error) {
     ctx, end := s.instrument(ctx, "FinalizeOrder")
@@ -172,7 +170,7 @@ func (s *OrderServer) ConfirmOrderStock(ctx context.Context, req *orderpb.Finali
 }
 
 func (s *OrderServer) CancelOrder(ctx context.Context, req *orderpb.CancelOrderRequest) (*orderpb.CancelOrderResponse, error) {
-    _ , end := s.instrument(ctx, "CancelOrder")
+    _, end := s.instrument(ctx, "CancelOrder")
     defer end()
 
     s.mu.Lock()

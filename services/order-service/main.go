@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"time"
 
@@ -89,16 +88,12 @@ func main() {
         }
     }()
 
-    // ── Metrics setup ─────────────────────────────────────────────────────────
-    mp, promHandler, err := telemetry.InitMetrics(ctx, "order-service")
+    // ── Metrics setup (OTLP/gRPC) ──────────────────────────────────────────────
+    mp, err := telemetry.InitMetrics(ctx, "order-service")
     if err != nil {
         log.Fatalf("Order: metrics init error: %v", err)
     }
-    go func() {
-        http.Handle("/metrics", promHandler)
-        log.Println("Order: metrics endpoint -> :2223/metrics")
-        log.Fatal(http.ListenAndServe(":2223", nil))
-    }()
+    // Brak HTTP /metrics — metryki są pushowane bezpośrednio do OTLP Collector :contentReference[oaicite:1]{index=1}.
 
     // ── Connect to Inventory Service ─────────────────────────────────────────
     invTarget := getEnv("INVENTORY_SERVICE_ENDPOINT", "localhost:"+defaultInventoryServiceTargetPort)
@@ -106,7 +101,7 @@ func main() {
 
     conn, err := grpc.DialContext(ctx, invTarget,
         grpc.WithTransportCredentials(insecure.NewCredentials()),
-        grpc.WithStatsHandler(otelgrpc.NewClientHandler()), // client-side StatsHandler
+        grpc.WithStatsHandler(otelgrpc.NewClientHandler()), // client‐side StatsHandler :contentReference[oaicite:2]{index=2}
     )
     if err != nil {
         log.Fatalf("Order: failed to dial inventory: %v", err)
@@ -116,7 +111,7 @@ func main() {
     invClient := invpb.NewInventoryServiceClient(conn)
     log.Println("Order Service: connected to Inventory.")
 
-    // quick background smoke-test
+    // quick background smoke‐test
     go Test(invClient)
 
     // ── Start gRPC Server ────────────────────────────────────────────────────
@@ -126,9 +121,10 @@ func main() {
     }
 
     grpcServer := grpc.NewServer(
-        grpc.StatsHandler(otelgrpc.NewServerHandler()), // server-side StatsHandler
+        grpc.StatsHandler(otelgrpc.NewServerHandler()), // server‐side StatsHandler :contentReference[oaicite:3]{index=3}
     )
 
+    // Przekazujemy meter do konstruktora serwera
     orderSrv := internal.NewOrderServer(invClient, mp.Meter("order-service"))
     orderpb.RegisterOrderServiceServer(grpcServer, orderSrv)
 
