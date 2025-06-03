@@ -25,6 +25,8 @@ log_step "Deploying Eventexporter..."
 "$PROJECT_ROOT/scripts/observability/deploy-eventexporter.sh"
 log_step "Deploying Promtail..."
 "$PROJECT_ROOT/scripts/observability/deploy-promtail.sh"
+log_step "Deploying Pyroscope..."
+"$PROJECT_ROOT/scripts/observability/deploy-pyroscope.sh"
 log_step "Deploying OTLP Collector..."
 "$PROJECT_ROOT/scripts/observability/deploy-otlp-collector.sh"
 
