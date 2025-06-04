@@ -80,36 +80,36 @@ func main() {
     // ── Tracing setup ─────────────────────────────────────────────────────────
     tp, err := telemetry.InitTracer(ctx, "order-service")
     if err != nil {
-        log.Fatalf("Order: tracer init error: %v", err)
+        log.Fatalf("[Order] tracer init error: %v", err)
     }
     defer func() {
         if err := tp.Shutdown(ctx); err != nil {
-            log.Printf("Order: error shutting down tracer: %v", err)
+            log.Printf("[Order] error shutting down tracer: %v", err)
         }
     }()
 
     // ── Metrics setup (OTLP/gRPC) ──────────────────────────────────────────────
     mp, err := telemetry.InitMetrics(ctx, "order-service")
     if err != nil {
-        log.Fatalf("Order: metrics init error: %v", err)
+        log.Fatalf("[Order] metrics init error: %v", err)
     }
     // Brak HTTP /metrics — metryki są pushowane bezpośrednio do OTLP Collector :contentReference[oaicite:1]{index=1}.
 
     // ── Connect to Inventory Service ─────────────────────────────────────────
     invTarget := getEnv("INVENTORY_SERVICE_ENDPOINT", "localhost:"+defaultInventoryServiceTargetPort)
-    log.Printf("Order Service: connecting to Inventory at %s", invTarget)
+    log.Printf("[Order] connecting to Inventory at %s", invTarget)
 
     conn, err := grpc.DialContext(ctx, invTarget,
         grpc.WithTransportCredentials(insecure.NewCredentials()),
         grpc.WithStatsHandler(otelgrpc.NewClientHandler()), // client‐side StatsHandler :contentReference[oaicite:2]{index=2}
     )
     if err != nil {
-        log.Fatalf("Order: failed to dial inventory: %v", err)
+        log.Fatalf("[Order] failed to dial inventory: %v", err)
     }
     defer conn.Close()
 
     invClient := invpb.NewInventoryServiceClient(conn)
-    log.Println("Order Service: connected to Inventory.")
+    log.Println("[Order] connected to Inventory.")
 
     // quick background smoke‐test
     go Test(invClient)
@@ -117,7 +117,7 @@ func main() {
     // ── Start gRPC Server ────────────────────────────────────────────────────
     lis, err := net.Listen("tcp", orderServiceListenPort)
     if err != nil {
-        log.Fatalf("Order Service: listen error: %v", err)
+        log.Fatalf("[Order] listen error: %v", err)
     }
 
     grpcServer := grpc.NewServer(
@@ -128,8 +128,8 @@ func main() {
     orderSrv := internal.NewOrderServer(invClient, mp.Meter("order-service"))
     orderpb.RegisterOrderServiceServer(grpcServer, orderSrv)
 
-    log.Printf("Order Service: gRPC listening on %s", orderServiceListenPort)
+    log.Printf("[Order] gRPC listening on %s", orderServiceListenPort)
     if err := grpcServer.Serve(lis); err != nil {
-        log.Fatalf("Order Service: Serve() error: %v", err)
+        log.Fatalf("[Order] Serve() error: %v", err)
     }
 }

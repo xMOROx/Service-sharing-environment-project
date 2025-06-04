@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log"
 	"sync"
 	"time"
 
@@ -102,9 +103,9 @@ func NewInventoryServer(m metric.Meter) *InventoryServer {
 
 // GetProductInfo zwraca szczegóły produktu dla podanego ProductId
 func (s *InventoryServer) GetProductInfo(ctx context.Context, req *pb.ProductId) (*pb.ProductInfo, error) {
+	log.Printf("[Inventory][GetProductInfo] called with product_id=%s", req.ProductId)
 	start := time.Now()
 	defer func() {
-		// Rejestrujemy liczbę wywołań i czas trwania
 		s.requestCounter.Add(ctx, 1,
 			metric.WithAttributes(attribute.String("method", "GetProductInfo")),
 		)
@@ -112,6 +113,7 @@ func (s *InventoryServer) GetProductInfo(ctx context.Context, req *pb.ProductId)
 		s.latencyHist.Record(ctx, elapsedMs,
 			metric.WithAttributes(attribute.String("method", "GetProductInfo")),
 		)
+		log.Printf("[Inventory][GetProductInfo] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
@@ -119,13 +121,16 @@ func (s *InventoryServer) GetProductInfo(ctx context.Context, req *pb.ProductId)
 
 	product, exists := s.products[req.ProductId]
 	if !exists {
+		log.Printf("[Inventory][GetProductInfo] product not found: %s", req.ProductId)
 		return nil, errors.New("product not found")
 	}
+	log.Printf("[Inventory][GetProductInfo] found product: %s, quantity=%d", product.ProductId, product.AvailableQuantity)
 	return product, nil
 }
 
 // AddProduct dodaje nowy produkt do mapy
 func (s *InventoryServer) AddProduct(ctx context.Context, req *pb.ProductInfo) (*pb.OperationStatus, error) {
+	log.Printf("[Inventory][AddProduct] called with product_id=%s name=%s", req.ProductId, req.Name)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(ctx, 1,
@@ -135,20 +140,24 @@ func (s *InventoryServer) AddProduct(ctx context.Context, req *pb.ProductInfo) (
 		s.latencyHist.Record(ctx, elapsedMs,
 			metric.WithAttributes(attribute.String("method", "AddProduct")),
 		)
+		log.Printf("[Inventory][AddProduct] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if _, exists := s.products[req.ProductId]; exists {
+		log.Printf("[Inventory][AddProduct] product already exists: %s", req.ProductId)
 		return &pb.OperationStatus{Success: false, Message: "Product already exists"}, nil
 	}
 	s.products[req.ProductId] = req
+	log.Printf("[Inventory][AddProduct] product added: %s", req.ProductId)
 	return &pb.OperationStatus{Success: true, Message: "Product added"}, nil
 }
 
 // UpdateProduct aktualizuje istniejący produkt
 func (s *InventoryServer) UpdateProduct(ctx context.Context, req *pb.ProductInfo) (*pb.OperationStatus, error) {
+	log.Printf("[Inventory][UpdateProduct] called with product_id=%s", req.ProductId)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(ctx, 1,
@@ -158,20 +167,24 @@ func (s *InventoryServer) UpdateProduct(ctx context.Context, req *pb.ProductInfo
 		s.latencyHist.Record(ctx, elapsedMs,
 			metric.WithAttributes(attribute.String("method", "UpdateProduct")),
 		)
+		log.Printf("[Inventory][UpdateProduct] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if _, exists := s.products[req.ProductId]; !exists {
+		log.Printf("[Inventory][UpdateProduct] product not found: %s", req.ProductId)
 		return &pb.OperationStatus{Success: false, Message: "Product not found"}, nil
 	}
 	s.products[req.ProductId] = req
+	log.Printf("[Inventory][UpdateProduct] product updated: %s", req.ProductId)
 	return &pb.OperationStatus{Success: true, Message: "Product updated"}, nil
 }
 
 // RemoveProduct oznacza produkt jako wycofany (discontinued)
 func (s *InventoryServer) RemoveProduct(ctx context.Context, req *pb.ProductId) (*pb.OperationStatus, error) {
+	log.Printf("[Inventory][RemoveProduct] called with product_id=%s", req.ProductId)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(ctx, 1,
@@ -181,6 +194,7 @@ func (s *InventoryServer) RemoveProduct(ctx context.Context, req *pb.ProductId) 
 		s.latencyHist.Record(ctx, elapsedMs,
 			metric.WithAttributes(attribute.String("method", "RemoveProduct")),
 		)
+		log.Printf("[Inventory][RemoveProduct] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
@@ -188,13 +202,16 @@ func (s *InventoryServer) RemoveProduct(ctx context.Context, req *pb.ProductId) 
 
 	if product, exists := s.products[req.ProductId]; exists {
 		product.Discontinued = true
+		log.Printf("[Inventory][RemoveProduct] marked discontinued: %s", req.ProductId)
 		return &pb.OperationStatus{Success: true, Message: "Product discontinued"}, nil
 	}
+	log.Printf("[Inventory][RemoveProduct] product not found: %s", req.ProductId)
 	return &pb.OperationStatus{Success: false, Message: "Product not found"}, nil
 }
 
 // AdjustStock modyfikuje AvailableQuantity o QuantityChange
 func (s *InventoryServer) AdjustStock(ctx context.Context, req *pb.StockAdjustment) (*pb.OperationStatus, error) {
+	log.Printf("[Inventory][AdjustStock] called with product_id=%s quantity_change=%d", req.ProductId, req.QuantityChange)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(ctx, 1,
@@ -204,6 +221,7 @@ func (s *InventoryServer) AdjustStock(ctx context.Context, req *pb.StockAdjustme
 		s.latencyHist.Record(ctx, elapsedMs,
 			metric.WithAttributes(attribute.String("method", "AdjustStock")),
 		)
+		log.Printf("[Inventory][AdjustStock] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
@@ -211,16 +229,22 @@ func (s *InventoryServer) AdjustStock(ctx context.Context, req *pb.StockAdjustme
 
 	product, exists := s.products[req.ProductId]
 	if !exists {
+		log.Printf("[Inventory][AdjustStock] product not found: %s", req.ProductId)
 		return &pb.OperationStatus{Success: false, Message: "Product not found"}, nil
 	}
 
 	product.AvailableQuantity += req.QuantityChange
 	product.IsAvailable = product.AvailableQuantity > 0
+	log.Printf(
+		"[Inventory][AdjustStock] new quantity for %s = %d",
+		req.ProductId, product.AvailableQuantity,
+	)
 	return &pb.OperationStatus{Success: true, Message: "Stock adjusted"}, nil
 }
 
 // BulkStockUpdate to RPC typu client‐streaming
 func (s *InventoryServer) BulkStockUpdate(stream pb.InventoryService_BulkStockUpdateServer) error {
+	log.Printf("[Inventory][BulkStockUpdate] stream started")
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(stream.Context(), 1,
@@ -230,19 +254,26 @@ func (s *InventoryServer) BulkStockUpdate(stream pb.InventoryService_BulkStockUp
 		s.latencyHist.Record(stream.Context(), elapsedMs,
 			metric.WithAttributes(attribute.String("method", "BulkStockUpdate")),
 		)
+		log.Printf("[Inventory][BulkStockUpdate] latency=%.2fms", elapsedMs)
 	}()
 
 	for {
 		req, err := stream.Recv()
 		if err == io.EOF {
+			log.Printf("[Inventory][BulkStockUpdate] stream EOF")
 			return stream.SendAndClose(&pb.OperationStatus{Success: true, Message: "Bulk update complete"})
 		}
 		if err != nil {
+			log.Printf("[Inventory][BulkStockUpdate] Recv error: %v", err)
 			return err
 		}
-		// Używamy AdjustStock (bez metryk, bo już tu je zarejestrowaliśmy)
+		log.Printf(
+			"[Inventory][BulkStockUpdate] adjusting product_id=%s quantity_change=%d",
+			req.ProductId, req.QuantityChange,
+		)
 		_, err = s.AdjustStock(context.Background(), req)
 		if err != nil {
+			log.Printf("[Inventory][BulkStockUpdate] AdjustStock error: %v", err)
 			return err
 		}
 	}
@@ -250,6 +281,7 @@ func (s *InventoryServer) BulkStockUpdate(stream pb.InventoryService_BulkStockUp
 
 // GetStockLevel zwraca stan magazynu (tożsamy z GetProductInfo)
 func (s *InventoryServer) GetStockLevel(ctx context.Context, req *pb.ProductId) (*pb.ProductInfo, error) {
+	log.Printf("[Inventory][GetStockLevel] called with product_id=%s", req.ProductId)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(ctx, 1,
@@ -259,6 +291,7 @@ func (s *InventoryServer) GetStockLevel(ctx context.Context, req *pb.ProductId) 
 		s.latencyHist.Record(ctx, elapsedMs,
 			metric.WithAttributes(attribute.String("method", "GetStockLevel")),
 		)
+		log.Printf("[Inventory][GetStockLevel] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
@@ -266,13 +299,19 @@ func (s *InventoryServer) GetStockLevel(ctx context.Context, req *pb.ProductId) 
 
 	product, exists := s.products[req.ProductId]
 	if !exists {
+		log.Printf("[Inventory][GetStockLevel] product not found: %s", req.ProductId)
 		return nil, errors.New("product not found")
 	}
+	log.Printf("[Inventory][GetStockLevel] found product: %s, quantity=%d", product.ProductId, product.AvailableQuantity)
 	return product, nil
 }
 
 // ListProducts strumieniowo zwraca wszystkie produkty (opcjonalne filtrowanie)
 func (s *InventoryServer) ListProducts(req *pb.ProductFilter, stream pb.InventoryService_ListProductsServer) error {
+	log.Printf(
+		"[Inventory][ListProducts] called with category=%q include_discontinued=%t",
+		req.Category, req.IncludeDiscontinued,
+	)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(stream.Context(), 1,
@@ -282,6 +321,7 @@ func (s *InventoryServer) ListProducts(req *pb.ProductFilter, stream pb.Inventor
 		s.latencyHist.Record(stream.Context(), elapsedMs,
 			metric.WithAttributes(attribute.String("method", "ListProducts")),
 		)
+		log.Printf("[Inventory][ListProducts] latency=%.2fms", elapsedMs)
 	}()
 
 	s.mu.Lock()
@@ -294,15 +334,25 @@ func (s *InventoryServer) ListProducts(req *pb.ProductFilter, stream pb.Inventor
 		if req.Category != "" && p.Category != req.Category {
 			continue
 		}
+		log.Printf(
+			"[Inventory][ListProducts] sending product_id=%s quantity=%d",
+			p.ProductId, p.AvailableQuantity,
+		)
 		if err := stream.Send(p); err != nil {
+			log.Printf("[Inventory][ListProducts] Send error: %v", err)
 			return err
 		}
 	}
+	log.Printf("[Inventory][ListProducts] stream completed")
 	return nil
 }
 
 // SubscribeLowStockAlerts wysyła alerty co pewien czas, gdy AvailableQuantity <= threshold
 func (s *InventoryServer) SubscribeLowStockAlerts(req *pb.LowStockSubscription, stream pb.InventoryService_SubscribeLowStockAlertsServer) error {
+	log.Printf(
+		"[Inventory][SubscribeLowStockAlerts] called with threshold=%d product_ids=%v",
+		req.Threshold, req.ProductIds,
+	)
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(stream.Context(), 1,
@@ -312,9 +362,9 @@ func (s *InventoryServer) SubscribeLowStockAlerts(req *pb.LowStockSubscription, 
 		s.latencyHist.Record(stream.Context(), elapsedMs,
 			metric.WithAttributes(attribute.String("method", "SubscribeLowStockAlerts")),
 		)
+		log.Printf("[Inventory][SubscribeLowStockAlerts] latency=%.2fms", elapsedMs)
 	}()
 
-	// Poprawne pole w LowStockSubscription to Threshold, nie LowStockThreshold
 	threshold := req.Threshold
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -322,18 +372,23 @@ func (s *InventoryServer) SubscribeLowStockAlerts(req *pb.LowStockSubscription, 
 	for {
 		select {
 		case <-stream.Context().Done():
+			log.Printf("[Inventory][SubscribeLowStockAlerts] client canceled")
 			return nil
 		case <-ticker.C:
 			s.mu.Lock()
 			for _, p := range s.products {
 				if p.AvailableQuantity <= threshold {
-					// LowStockAlert ma pole CurrentQuantity, nie AvailableQuantity
+					log.Printf(
+						"[Inventory][SubscribeLowStockAlerts] alert for product_id=%s quantity=%d",
+						p.ProductId, p.AvailableQuantity,
+					)
 					if err := stream.Send(&pb.LowStockAlert{
 						ProductId:       p.ProductId,
 						CurrentQuantity: p.AvailableQuantity,
-						Message:         "Low stock", // Opcjonalne: możesz dodać własny komunikat
+						Message:         "Low stock",
 					}); err != nil {
 						s.mu.Unlock()
+						log.Printf("[Inventory][SubscribeLowStockAlerts] Send error: %v", err)
 						return err
 					}
 				}
@@ -345,6 +400,7 @@ func (s *InventoryServer) SubscribeLowStockAlerts(req *pb.LowStockSubscription, 
 
 // InteractiveOrderStock to RPC bidirectional streaming (recv/send)
 func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_InteractiveOrderStockServer) error {
+	log.Printf("[Inventory][InteractiveOrderStock] stream started")
 	start := time.Now()
 	defer func() {
 		s.requestCounter.Add(stream.Context(), 1,
@@ -354,16 +410,23 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 		s.latencyHist.Record(stream.Context(), elapsedMs,
 			metric.WithAttributes(attribute.String("method", "InteractiveOrderStock")),
 		)
+		log.Printf("[Inventory][InteractiveOrderStock] latency=%.2fms", elapsedMs)
 	}()
 
 	for {
 		req, err := stream.Recv()
 		if err == io.EOF {
+			log.Printf("[Inventory][InteractiveOrderStock] stream EOF")
 			return nil
 		}
 		if err != nil {
+			log.Printf("[Inventory][InteractiveOrderStock] Recv error: %v", err)
 			return err
 		}
+		log.Printf(
+			"[Inventory][InteractiveOrderStock] received request product_id=%s requested_quantity=%d",
+			req.ProductId, req.RequestedQuantity,
+		)
 
 		s.mu.Lock()
 		p, ok := s.products[req.ProductId]
@@ -371,6 +434,10 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 
 		// Poprawa pola RequestedQuantity zamiast Quantity
 		if !ok || p.AvailableQuantity < req.RequestedQuantity {
+			log.Printf(
+				"[Inventory][InteractiveOrderStock] insufficient stock for product_id=%s current=%d requested=%d",
+				req.ProductId, p.AvailableQuantity, req.RequestedQuantity,
+			)
 			resp = pb.OrderItemResponse{
 				ProductId:         req.ProductId,
 				Available:         false,
@@ -380,6 +447,10 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 		} else {
 			p.AvailableQuantity -= req.RequestedQuantity
 			p.IsAvailable = p.AvailableQuantity > 0
+			log.Printf(
+				"[Inventory][InteractiveOrderStock] reserved product_id=%s new_quantity=%d",
+				req.ProductId, p.AvailableQuantity,
+			)
 			resp = pb.OrderItemResponse{
 				ProductId:         req.ProductId,
 				Available:         true,
@@ -390,7 +461,12 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 		s.mu.Unlock()
 
 		if err := stream.Send(&resp); err != nil {
+			log.Printf("[Inventory][InteractiveOrderStock] Send error: %v", err)
 			return err
 		}
+		log.Printf(
+			"[Inventory][InteractiveOrderStock] sent response for product_id=%s available=%v remaining=%d",
+			resp.ProductId, resp.Available, resp.AvailableQuantity,
+		)
 	}
 }

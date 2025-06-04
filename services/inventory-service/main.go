@@ -21,25 +21,25 @@ func main() {
     // ── Tracing setup ─────────────────────────────────────────────────────────
     tp, err := telemetry.InitTracer(ctx, "inventory-service")
     if err != nil {
-        log.Fatalf("Inventory: tracer init error: %v", err)
+        log.Fatalf("[Inventory] tracer init error: %v", err)
     }
     defer func() {
         if err := tp.Shutdown(ctx); err != nil {
-            log.Printf("Inventory: error shutting down tracer: %v", err)
+            log.Printf("[Inventory] error shutting down tracer: %v", err)
         }
     }()
 
     // ── Metrics setup (OTLP/gRPC) ──────────────────────────────────────────────
     mp, err := telemetry.InitMetrics(ctx, "inventory-service")
     if err != nil {
-        log.Fatalf("Inventory: metrics init error: %v", err)
+        log.Fatalf("[Inventory] metrics init error: %v", err)
     }
     // UWAGA: nie wystawiamy Prometheus HTTP /metrics – metryki pushują się do OTLP Collector
 
     // ── Start gRPC server ──────────────────────────────────────────────────────
     lis, err := net.Listen("tcp", port)
     if err != nil {
-        log.Fatalf("Inventory Service: failed to listen: %v", err)
+        log.Fatalf("[Inventory] failed to listen: %v", err)
     }
 
     grpcServer := grpc.NewServer(
@@ -51,8 +51,8 @@ func main() {
     invSrv := internal.NewInventoryServer(mp.Meter("inventory-service"))
     invpb.RegisterInventoryServiceServer(grpcServer, invSrv)
 
-    log.Printf("Inventory Service: Starting gRPC server, listening on %s", port)
+    log.Printf("[Inventory] Starting gRPC server, listening on %s", port)
     if err := grpcServer.Serve(lis); err != nil {
-        log.Fatalf("Inventory Service: failed to serve gRPC: %v", err)
+        log.Fatalf("[Inventory] failed to serve gRPC: %v", err)
     }
 }
