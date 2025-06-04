@@ -1,4 +1,4 @@
-.PHONY: all proto clean order inventory deploy images uninstall clean-images forward-ports clean-ports deploy-observability create-cluster remove-cluster help
+.PHONY: all proto clean order inventory deploy images uninstall uninstall-observability clean-images forward-ports clean-ports deploy-observability create-cluster remove-cluster help 
 
 ORDER_DIR=./services/order-service
 INVENTORY_DIR=./services/inventory-service
@@ -46,6 +46,9 @@ clean-ports:
 uninstall: clean-ports
 	./scripts/service-management/uninstall.sh
 
+uninstall-observability:
+	./scripts/observability/uninstall-observability.sh
+
 clean: clean-images
 	find . -name "*.pb.go" -delete
 	rm -rf proto/inventory proto/order
@@ -65,6 +68,7 @@ help:
 	@echo "  deploy                - Deploy services"
 	@echo "  deploy-observability  - Deploy observability stack"
 	@echo "  uninstall             - Uninstall services and clean ports"
+	@echo "  uninstall-observability - Uninstall observability stack"
 	@echo "  forward-ports         - Forward ports for services"
 	@echo "  clean-ports           - Clean forwarded ports"
 	@echo "  create-cluster        - Create local Kind cluster"
