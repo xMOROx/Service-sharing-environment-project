@@ -93,7 +93,6 @@ func main() {
     if err != nil {
         log.Fatalf("[Order] metrics init error: %v", err)
     }
-    // Brak HTTP /metrics — metryki są pushowane bezpośrednio do OTLP Collector :contentReference[oaicite:1]{index=1}.
 
     // ── Connect to Inventory Service ─────────────────────────────────────────
     invTarget := getEnv("INVENTORY_SERVICE_ENDPOINT", "localhost:"+defaultInventoryServiceTargetPort)
@@ -101,7 +100,7 @@ func main() {
 
     conn, err := grpc.DialContext(ctx, invTarget,
         grpc.WithTransportCredentials(insecure.NewCredentials()),
-        grpc.WithStatsHandler(otelgrpc.NewClientHandler()), // client‐side StatsHandler :contentReference[oaicite:2]{index=2}
+        grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
     )
     if err != nil {
         log.Fatalf("[Order] failed to dial inventory: %v", err)

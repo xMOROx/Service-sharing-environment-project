@@ -34,7 +34,6 @@ func main() {
     if err != nil {
         log.Fatalf("[Inventory] metrics init error: %v", err)
     }
-    // UWAGA: nie wystawiamy Prometheus HTTP /metrics – metryki pushują się do OTLP Collector
 
     // ── Start gRPC server ──────────────────────────────────────────────────────
     lis, err := net.Listen("tcp", port)
@@ -43,8 +42,7 @@ func main() {
     }
 
     grpcServer := grpc.NewServer(
-        // ❶ Usuwamy grpc.WithTransportCredentials(insecure.NewCredentials())
-        // ❷ Rejestrujemy StatsHandler, żeby OTel/Instruments automatycznie łapało spany i metryki
+        //Rejestrujemy StatsHandler, żeby OTel/Instruments automatycznie łapało spany i metryki
         grpc.StatsHandler(otelgrpc.NewServerHandler()),
     )
 

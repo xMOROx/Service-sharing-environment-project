@@ -432,7 +432,6 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 		p, ok := s.products[req.ProductId]
 		var resp pb.OrderItemResponse
 
-		// Poprawa pola RequestedQuantity zamiast Quantity
 		if !ok || p.AvailableQuantity < req.RequestedQuantity {
 			log.Printf(
 				"[Inventory][InteractiveOrderStock] insufficient stock for product_id=%s current=%d requested=%d",
@@ -441,7 +440,7 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 			resp = pb.OrderItemResponse{
 				ProductId:         req.ProductId,
 				Available:         false,
-				AvailableQuantity: p.AvailableQuantity, // zamiast RemainingQuantity
+				AvailableQuantity: p.AvailableQuantity,
 				Message:           "Insufficient stock",
 			}
 		} else {
@@ -454,7 +453,7 @@ func (s *InventoryServer) InteractiveOrderStock(stream pb.InventoryService_Inter
 			resp = pb.OrderItemResponse{
 				ProductId:         req.ProductId,
 				Available:         true,
-				AvailableQuantity: p.AvailableQuantity, // pole AvailableQuantity
+				AvailableQuantity: p.AvailableQuantity,
 				Message:           "Reserved",
 			}
 		}
