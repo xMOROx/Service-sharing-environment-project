@@ -4,3 +4,4 @@ grpc:
   concurrency: 10
   requests: 100
   target: "demo-order-service:50052"
+  proto: "/proto/order.proto"

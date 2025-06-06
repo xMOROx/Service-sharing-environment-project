@@ -11,7 +11,7 @@ spec:
           image: ghcr.io/bojand/ghz
           args:
             - "--proto"
-            - "/proto/order.proto"
+            - "{{ .Values.grpc.proto }}"
             - "--call"
             - "{{ .Values.grpc.call }}"
             - "-d"
