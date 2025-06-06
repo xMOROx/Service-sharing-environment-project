@@ -61,9 +61,6 @@ clean-images:
 test:
 	./scripts/load-generator/run-test.sh
 
-test-clean:
-	./scripts/load-generator/clean.sh
-
 # ============== Help Target ==============
 help:
 	@echo "Available targets:"
@@ -83,4 +80,5 @@ help:
 	@echo "  clean                 - Clean generated files and images"
 	@echo "  clean-images          - Clean built executables"
 	@echo "  help                  - Show this help message"
+	@echo "  test                  - Run load generator"
 
