@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "grpc-load-generator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  template:
+    spec:
+      containers:
+        - name: ghz
+          image: ghcr.io/bojand/ghz
+          args:
+            - "--proto"
+            - "/proto/order.proto"
+            - "--call"
+            - "{{ .Values.grpc.call }}"
+            - "-d"
+            - {{ .Values.grpc.payload | quote }}
+            - "--insecure"
+            - "-c"
+            - "{{ .Values.grpc.concurrency }}"
+            - "-n"
+            - "{{ .Values.grpc.requests }}"
+            - "{{ .Values.grpc.target }}"
+          volumeMounts:
+            - name: proto-volume
+              mountPath: /proto
+      volumes:
+        - name: proto-volume
+          configMap:
+            name: order-proto
+      restartPolicy: Never
+  backoffLimit: 2

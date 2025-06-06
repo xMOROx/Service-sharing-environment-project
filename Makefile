@@ -57,6 +57,13 @@ clean-images:
 	rm -f ${ORDER_DIR}/${ORDER_EXEC}
 	rm -f ${INVENTORY_DIR}/${INVENTORY_EXEC}
 
+# ============== Load generator ==============
+test:
+	./scripts/load-generator/run-test.sh
+
+test-clean:
+	./scripts/load-generator/clean.sh
+
 # ============== Help Target ==============
 help:
 	@echo "Available targets:"
