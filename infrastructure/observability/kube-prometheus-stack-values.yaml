@@ -14,6 +14,25 @@ grafana:
       enabled: true
       org_role: Admin
 
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: "Custom"
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 10
+          options:
+            path: /var/lib/grafana/dashboards
+
+  extraConfigmapMounts:
+    - name: grafana-dashboards
+      mountPath: /var/lib/grafana/dashboards
+      configMap: grafana-dashboards
+      readOnly: true
+
   additionalDataSources:
     - name: Loki
       type: loki

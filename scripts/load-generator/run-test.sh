@@ -45,7 +45,7 @@ helm install grpc-removeproduct "$(dirname "$0")/../../infrastructure/grpc-load-
 uninstall_if_exists grpc-checkavailability
 helm install grpc-checkavailability "$(dirname "$0")/../../infrastructure/grpc-load-generator" --namespace demo \
   --set grpc.call=order.OrderService.CheckItemAvailability \
-  --set-literal grpc.payload='{"product_id": "P001"}'
+  --set-literal grpc.payload='{"product_id": "P001"}' \
   --set grpc.concurrency=5 \
   --set grpc.requests=500000 \
   --set grpc.rps=1000

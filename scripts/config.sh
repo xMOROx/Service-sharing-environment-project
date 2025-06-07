@@ -50,3 +50,5 @@ EVENTEXPORTER_VALUES_PATH="${PROJECT_ROOT}/infrastructure/observability/event-ex
 PYROSCOPE_VALUES_PATH="${PROJECT_ROOT}/infrastructure/observability/pyroscope-values.yaml"
 
 GRAFANA_PORT=3000
+INVENTORY_DASHBOARD="${PROJECT_ROOT}/infrastructure/dashboards/inventory.json"
+ORDER_DASHBOARD="${PROJECT_ROOT}/infrastructure/dashboards/order.json"
