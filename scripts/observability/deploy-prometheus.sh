@@ -21,6 +21,10 @@ show_banner_from_variable
 
 log_step "Deploying prometheus to the Kubernetes cluster..."
 kubectl create namespace "$KUBE_PROMETHEUS_STACK_NAMESPACE" || true
+if ! kubectl get configmap grafana-dashboards -n "$KUBE_PROMETHEUS_STACK_NAMESPACE" >/dev/null 2>&1; then
+  kubectl create configmap grafana-dashboards --from-file="$ORDER_DASHBOARD" --from-file="$INVENTORY_DASHBOARD" -n "$KUBE_PROMETHEUS_STACK_NAMESPACE"
+	echo "ConfigMap 'grafana-dashboards' created."
+fi
 
 helm upgrade \
   --install "$HELM_KUBE_PROMETHEUS_STACK_DEPLOYMENT_NAME" \

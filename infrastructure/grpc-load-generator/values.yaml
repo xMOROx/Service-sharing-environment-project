@@ -1,0 +1,8 @@
+grpc:
+  call: "order.OrderService.FinalizeOrder"
+  payload: '{"session_id": "test-session", "items": [{"product_id": "P001", "quantity": 2}]}'
+  concurrency: 10
+  requests: 100
+  target: "demo-order-service:50052"
+  proto: "/proto/order.proto"
+  rps: 100
