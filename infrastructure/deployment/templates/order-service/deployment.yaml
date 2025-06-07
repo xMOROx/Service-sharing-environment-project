@@ -18,6 +18,7 @@ spec:
       {{- end }}
       labels:
         {{- include "microservice-demo.orderService.selectorLabels" . | nindent 8 }}
+        app: order-service
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

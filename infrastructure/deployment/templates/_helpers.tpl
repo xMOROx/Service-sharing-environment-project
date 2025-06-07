@@ -47,7 +47,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Base selector labels (used by multiple components if needed)
 */}}
 {{- define "microservice-demo.selectorLabelsBase" -}}
-app.kubernetes.io/name: {{ include "microservice-demo.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
@@ -57,6 +56,7 @@ Selector labels for Order Service
 {{- define "microservice-demo.orderService.selectorLabels" -}}
 {{- include "microservice-demo.selectorLabelsBase" . }}
 app.kubernetes.io/component: order-service
+app.kubernetes.io/name: order-service
 {{- end }}
 
 {{/*
@@ -65,6 +65,7 @@ Selector labels for Inventory Service
 {{- define "microservice-demo.inventoryService.selectorLabels" -}}
 {{- include "microservice-demo.selectorLabelsBase" . }}
 app.kubernetes.io/component: inventory-service
+app.kubernetes.io/name: inventory-service
 {{- end }}
 
 
