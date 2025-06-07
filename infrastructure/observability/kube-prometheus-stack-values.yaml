@@ -23,11 +23,18 @@ grafana:
       orgId: 1
     - name: Tempo
       type: tempo
-      url: http://tempo-query-frontend.tempo.svc.cluster.local:3100
       access: proxy
+      orgId: 1
+      url: http://tempo-gateway.tempo.svc.cluster.local/
+      basicAuth: false
       isDefault: false
+      version: 1
+      editable: false
+      apiVersion: 1
+      uid: tempo
     - name: Pyroscope
       type: grafana-pyroscope-datasource
       url: http://pyroscope.pyroscope.svc.cluster.local:4040
       access: proxy
       isDefault: false
+      orgId: 1

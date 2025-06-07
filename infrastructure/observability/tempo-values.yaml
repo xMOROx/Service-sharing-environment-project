@@ -1,3 +1,10 @@
+global:
+  clusterDomain: "cluster.local"
+gateway:
+  enabled: true
+minio:
+  enabled: true
+
 storage:
   trace:
     backend: s3
@@ -7,17 +14,6 @@ storage:
       bucket: "tempo-traces"
       endpoint: "tempo-minio:9000"
       insecure: true
-#MinIO storage configuration
-minio:
-  enabled: true
-  mode: standalone
-  rootUser: grafana-tempo
-  rootPassword: supersecret
-  buckets:
-    # Default Tempo storage bucket
-    - name: tempo-traces
-      policy: none
-      purge: false
 traces:
   otlp:
     grpc:
@@ -31,3 +27,13 @@ traces:
       enabled: false
   opencensus:
     enabled: false
+
+distributor:
+  config:
+    log_received_spans:
+      enabled: true
+    log_discarded_spans:
+      enabled: true
+# https://github.com/grafana/tempo/issues/4299 - distibuted tempo do not have by default TraceQL enabled
+metricsGenerator:
+  enabled: true
