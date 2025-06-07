@@ -18,7 +18,8 @@ helm install grpc-addproduct "$(dirname "$0")/../../infrastructure/grpc-load-gen
   --set-literal grpc.payload='{"product_id": "P111", "name": "New Product", "description": "Test item", "category": "TestCat", "discontinued": false, "available_quantity": 100, "is_available": true}' \
   --set grpc.proto="/proto/inventory.proto" \
   --set grpc.concurrency=10 \
-  --set grpc.requests=100 \
+  --set grpc.requests=10000 \
+  --set grpc.rps=100 \
   --set grpc.target="demo-inventory-service:50051"
 
 uninstall_if_exists grpc-listproducts
@@ -27,7 +28,8 @@ helm install grpc-listproducts "$(dirname "$0")/../../infrastructure/grpc-load-g
   --set-literal grpc.payload='{"category": "TestCat", "include_discontinued": false}' \
   --set grpc.proto="/proto/inventory.proto" \
   --set grpc.concurrency=1 \
-  --set grpc.requests=10 \
+  --set grpc.requests=100000 \
+  --set grpc.rps=100 \
   --set grpc.target="demo-inventory-service:50051"
 
 uninstall_if_exists grpc-removeproduct
@@ -36,17 +38,22 @@ helm install grpc-removeproduct "$(dirname "$0")/../../infrastructure/grpc-load-
   --set-literal grpc.payload='{"product_id": "P111"}' \
   --set grpc.proto="/proto/inventory.proto" \
   --set grpc.concurrency=10 \
-  --set grpc.requests=100 \
+  --set grpc.requests=10000 \
+  --set grpc.rps=100 \
   --set grpc.target="demo-inventory-service:50051"
 
 uninstall_if_exists grpc-checkavailability
 helm install grpc-checkavailability "$(dirname "$0")/../../infrastructure/grpc-load-generator" --namespace demo \
   --set grpc.call=order.OrderService.CheckItemAvailability \
   --set-literal grpc.payload='{"product_id": "P001"}'
+  --set grpc.concurrency=5 \
+  --set grpc.requests=500000 \
+  --set grpc.rps=1000
 
 uninstall_if_exists grpc-buildorder
 helm install grpc-buildorder "$(dirname "$0")/../../infrastructure/grpc-load-generator" --namespace demo \
   --set grpc.call=order.OrderService.BuildOrder \
   --set-literal grpc.payload='[{"product_id": "P002", "requested_quantity": 2}, {"product_id": "P003", "requested_quantity": 3}]' \
   --set grpc.concurrency=5 \
-  --set grpc.requests=50
+  --set grpc.requests=5000 \
+  --set grpc.rps=10
