@@ -55,7 +55,7 @@ config:
       tls:
         insecure: true
     otlp/traces:
-      endpoint: http://tempo.tempo.svc.cluster.local:4317
+      endpoint: http://tempo-distributor.tempo.svc.cluster.local:4317
       tls:
         insecure: true
     otlp/profiles:
@@ -104,9 +104,9 @@ config:
           - debug
           - otlphttp/logs
       profiles:
-        receivers: 
+        receivers:
           - otlp
-        exporters: 
+        exporters:
           - otlp/profiles
 
     telemetry:
