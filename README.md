@@ -184,25 +184,27 @@ For more granular control over the build, deployment, and management processes, 
 
 The `Makefile` targets call various shell scripts located in the `scripts/` directory. These scripts, in turn, utilize Kubernetes manifests, Helm charts (from `infrastructure/deployment/` and `infrastructure/observability/`), Dockerfiles (from `infrastructure/docker/`), and Kind configurations (from `infrastructure/kind/`) to manage the environment.
 
-## 7. How to reproduce - step by step
-
-### 1. Infrastructure as Code approach
-
-## 8. Demo deployment steps
-
+## 7. Demo deployment steps
+To reproduce the whole system with sample load you need only 4 commands
 ### 1. Configuration set-up
 
-### 2. Data preparation
+- `make create-cluster`
+- `make deploy`
+- `make forward-ports`
+### 2. Execution procedure
+- `make test`
 
-### 3. Execution procedure
+### 3. Results presentation
+#### Inventory dashboard
+![alt text](./images/inventory_dashboard.png)
 
-### 4. Results presentation
+#### Order dashboard
+![alt text](./images/order_dashboard.png)
+## 8. Using AI in the project
 
-## 9. Using AI in the project
+## 9. Summary – conclusions
 
-## 10. Summary – conclusions
-
-## 11. References
+## 10. References
 
 * **OpenTelemetry:** [https://opentelemetry.io/](https://opentelemetry.io/)
 * **Go:** [https://golang.org/](https://golang.org/)
