@@ -204,10 +204,9 @@ To reproduce the whole system with sample load you need only 4 commands
 AI was used for theoretical support and guidance on architecture design and how to connect various components. It was helpful in explaining where things should be placed and why. However, it didn’t work as well for configurations, as it sometimes generated suggestions or examples for things that didn’t exist, such as images that were never available.
 
 ## 9. Summary – conclusions
+The project successfully demonstrated the integration of observability into a simple client-server application built in Go. Using OpenTelemetry, we instrumented the application to collect traces, metrics, and logs, which were routed through an OpenTelemetry Collector and visualized in Grafana. The setup involved deploying services with Kubernetes, managing them via Helm and containerizing them with Docker. Observability data was monitored in real time. 
 
-The project successfully demonstrated the integration of observability into a simple client-server application built in Go. Using OpenTelemetry, we instrumented the application to collect traces, metrics, and logs, which were routed through an OpenTelemetry Collector and visualized in Grafana. The setup involved deploying services with Kubernetes, managing them via Helm, and containerizing them with Docker. Observability data was monitored in real time. 
-
-Overall, the project achieved its goal of building a minimal yet functional observability environment, enabling better understanding of service behavior and fostering insights for future improvements.
+Overall, the project achieved its goal of building a minimal yet functional observability environment enabling better understanding of service behavior and helping to discover what can be improved in the future.
 
 ## 10. References
 
