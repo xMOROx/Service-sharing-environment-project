@@ -185,11 +185,12 @@ For more granular control over the build, deployment, and management processes, 
 The `Makefile` targets call various shell scripts located in the `scripts/` directory. These scripts, in turn, utilize Kubernetes manifests, Helm charts (from `infrastructure/deployment/` and `infrastructure/observability/`), Dockerfiles (from `infrastructure/docker/`), and Kind configurations (from `infrastructure/kind/`) to manage the environment.
 
 ## 7. Demo deployment steps
-To reproduce the whole system with sample load you need only 3 commands
+To reproduce the whole system with sample load you need only 4 commands
 ### 1. Configuration set-up
 
 - `make create-cluster`
 - `make deploy`
+- `make forward-ports`
 ### 2. Execution procedure
 - `make test`
 
