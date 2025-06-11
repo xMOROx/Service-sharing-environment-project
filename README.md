@@ -201,7 +201,9 @@ To reproduce the whole system with sample load you need only 4 commands
 #### Order dashboard
 ![alt text](./images/order_dashboard.png)
 ## 8. Using AI in the project
-AI was used for theoretical support and guidance on architecture design and how to connect various components. It was helpful in explaining where things should be placed and why. However, it didn’t work as well for configurations, as it sometimes generated suggestions or examples for things that didn’t exist, such as images that were never available.
+AI was used for theoretical support and guidance on architecture design and how to connect various components. It was helpful in explaining where things should be placed and why. However, it didn't work as well for configurations, as it sometimes generated suggestions or examples for things that didn't exist, such as images that were never available.
+
+Additionally, Gemini 2.5 Pro was used to polish and improve the shell scripts for better reproduction of the deployment process, helping to refine automation and ensure smoother execution of the installation steps.
 
 ## 9. Summary – conclusions
 The project successfully demonstrated the integration of observability into a simple client-server application built in Go. Using OpenTelemetry, we instrumented the application to collect traces, metrics, and logs, which were routed through an OpenTelemetry Collector and visualized in Grafana. The setup involved deploying services with Kubernetes, managing them via Helm and containerizing them with Docker. Observability data was monitored in real time. 
